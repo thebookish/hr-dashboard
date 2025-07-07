@@ -459,7 +459,7 @@ function VerificationDetailsView({
 }: {
   request: VerificationRequest;
   onApprove: () => void;
-  onReject: (request: VerificationRequest, reason?: string) => void;
+  onReject: (reason?: string) => void;
   onViewDocument: (url: string) => void;
   onDownloadDocument: (url: string, fileName: string) => void;
 }) {
@@ -1095,7 +1095,7 @@ function VerificationDetailsView({
                   </DialogHeader>
                   <RejectVerificationForm
                     request={request}
-                    onReject={(req, reason) => onReject(req, reason)}
+                    onReject={(reason) => onReject(reason)}
                   />
                 </DialogContent>
               </Dialog>
@@ -1113,7 +1113,7 @@ function RejectVerificationForm({
   onReject,
 }: {
   request: VerificationRequest;
-  onReject: (request: VerificationRequest, reason?: string) => void;
+  onReject: (reason?: string) => void;
 }) {
   const [reason, setReason] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -1122,7 +1122,7 @@ function RejectVerificationForm({
     e.preventDefault();
     setIsLoading(true);
     try {
-      await onReject(request, reason);
+      await onReject(reason);
     } finally {
       setIsLoading(false);
     }
