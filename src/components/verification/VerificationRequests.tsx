@@ -459,7 +459,7 @@ function VerificationDetailsView({
 }: {
   request: VerificationRequest;
   onApprove: () => void;
-  onReject: (reason?: string) => void;
+  onReject: (request: VerificationRequest, reason?: string) => void;
   onViewDocument: (url: string) => void;
   onDownloadDocument: (url: string, fileName: string) => void;
 }) {
@@ -1095,7 +1095,7 @@ function VerificationDetailsView({
                   </DialogHeader>
                   <RejectVerificationForm
                     request={request}
-                    onReject={onReject}
+                    onReject={(req, reason) => onReject(req, reason)}
                   />
                 </DialogContent>
               </Dialog>
