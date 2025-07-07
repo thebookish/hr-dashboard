@@ -225,26 +225,29 @@ class ReportService {
         }
 
         doc.setFont("helvetica", "bold");
-        doc.text(`${index + 1}. ${employee.fullName}`, margin, yPos);
+        const fullName =
+          `${employee.firstName || ""} ${employee.surname || ""}`.trim() ||
+          "Unknown";
+        doc.text(`${index + 1}. ${fullName}`, margin, yPos);
         yPos += 6;
 
         doc.setFont("helvetica", "normal");
         doc.text(`Email: ${employee.email}`, margin + 10, yPos);
         yPos += 5;
         doc.text(
-          `Position: ${employee.jobType} | Status: ${employee.status}`,
+          `Position: ${employee.position} | Status: ${employee.status}`,
           margin + 10,
           yPos,
         );
         yPos += 5;
         doc.text(
-          `Join Date: ${employee.joinDate} | Sponsor: ${employee.sponsor}`,
+          `Join Date: ${employee.joinDate} | Wing: ${employee.wing}`,
           margin + 10,
           yPos,
         );
         yPos += 5;
         doc.text(
-          `Phone: ${employee.phone} | Nationality: ${employee.nationality}`,
+          `Phone: ${employee.mobile} | Sponsor: ${employee.sponsor}`,
           margin + 10,
           yPos,
         );
@@ -310,8 +313,8 @@ class ReportService {
             .map(
               (employee) => `
             <div class="employee">
-              <h3>${employee.fullName} (${employee.email})</h3>
-              <p><strong>Job Type:</strong> ${employee.jobType}</p>
+              <h3>${`${employee.firstName || ""} ${employee.surname || ""}`.trim() || "Unknown"} (${employee.email})</h3>
+              <p><strong>Position:</strong> ${employee.position}</p>
               <p><strong>Sponsor:</strong> ${employee.sponsor}</p>
               <p><strong>Status:</strong> ${employee.status}</p>
               <p><strong>Join Date:</strong> ${employee.joinDate}</p>
