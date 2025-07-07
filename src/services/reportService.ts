@@ -106,9 +106,34 @@ class ReportService {
         }
       });
 
+      // Transform LeaveRequest[] to LeaveModel[] to match interface
+      const transformedLeaves: LeaveModel[] = leaves.map((leave) => ({
+        id: leave.id,
+        name: leave.employeeName,
+        email: leave.employeeEmail,
+        type: leave.leaveType,
+        reason: leave.reason,
+        fromDate: leave.startDate,
+        toDate: leave.endDate,
+        status:
+          leave.status === "pending"
+            ? "Pending"
+            : leave.status === "approved"
+              ? "Approved"
+              : "Rejected",
+        noOfDays: leave.noOfDays,
+        whatsapp: leave.whatsapp,
+        emergencyContact: leave.emergencyContact,
+        substituteName: leave.substituteName,
+        substituteContact: leave.substituteContact,
+        signature: leave.signature,
+        designation: leave.designation,
+        wing: leave.wing,
+      }));
+
       return {
         employees,
-        leaves,
+        leaves: transformedLeaves,
         salaries,
         tasks,
         sponsors,
