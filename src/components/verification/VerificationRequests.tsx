@@ -127,15 +127,11 @@ const VerificationRequests = ({
     }
   };
 
-  const handleRejectVerification = async (
-    request: VerificationRequest,
-    reason?: string,
-  ) => {
+  const handleRejectVerification = async (request: VerificationRequest) => {
     try {
       await verificationService.approveVerification({
         employeeEmail: request.employeeEmail,
         approved: false,
-        reason,
       });
 
       const updatedRequests = requests.map((req) =>
@@ -144,7 +140,6 @@ const VerificationRequests = ({
               ...req,
               status: "rejected" as const,
               reviewedDate: new Date().toISOString(),
-              rejectionReason: reason,
             }
           : req,
       );
@@ -154,7 +149,6 @@ const VerificationRequests = ({
         onRequestUpdate({
           ...request,
           status: "rejected",
-          rejectionReason: reason,
         });
       }
     } catch (err: any) {
@@ -338,9 +332,7 @@ const VerificationRequests = ({
                         <VerificationDetailsView
                           request={request}
                           onApprove={() => handleApproveVerification(request)}
-                          onReject={(reason) =>
-                            handleRejectVerification(request, reason)
-                          }
+                          onReject={() => handleRejectVerification(request)}
                           onViewDocument={handleViewDocument}
                           onDownloadDocument={handleDownloadDocument}
                         />
@@ -372,7 +364,7 @@ const VerificationRequests = ({
                         </DialogHeader>
                         <RejectVerificationForm
                           request={request}
-                          onReject={handleRejectVerification}
+                          onReject={() => handleRejectVerification(request)}
                         />
                       </DialogContent>
                     </Dialog>
@@ -459,7 +451,7 @@ function VerificationDetailsView({
 }: {
   request: VerificationRequest;
   onApprove: () => void;
-  onReject: (reason?: string) => void;
+  onReject: () => void;
   onViewDocument: (url: string) => void;
   onDownloadDocument: (url: string, fileName: string) => void;
 }) {
@@ -1095,7 +1087,7 @@ function VerificationDetailsView({
                   </DialogHeader>
                   <RejectVerificationForm
                     request={request}
-                    onReject={(reason) => onReject(reason)}
+                    onReject={onReject}
                   />
                 </DialogContent>
               </Dialog>
@@ -1113,16 +1105,15 @@ function RejectVerificationForm({
   onReject,
 }: {
   request: VerificationRequest;
-  onReject: (reason?: string) => void;
+  onReject: () => void;
 }) {
-  const [reason, setReason] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await onReject(reason);
+      await onReject();
     } finally {
       setIsLoading(false);
     }
@@ -1136,15 +1127,6 @@ function RejectVerificationForm({
           <strong>{request.employeeName}</strong> for the position of{" "}
           <strong>{request.personalInfo.position}</strong>.
         </p>
-        <Label htmlFor="reason">Reason for Rejection</Label>
-        <Textarea
-          id="reason"
-          placeholder="Please provide a detailed reason for rejecting this verification request..."
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          rows={4}
-          required
-        />
       </div>
       <div className="flex justify-end gap-2">
         <Button type="submit" variant="destructive" disabled={isLoading}>
