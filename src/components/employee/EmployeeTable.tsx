@@ -27,6 +27,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import employeeService, {
   Employee,
   EmployeeModelNew,
+  ChildInfo,
 } from "@/services/employeeService";
 
 interface EmployeeTableProps {
@@ -417,7 +418,7 @@ function EmployeeEditForm({
 
   const updateChild = (
     index: number,
-    field: keyof (typeof formData.childDetails)[0],
+    field: keyof ChildInfo,
     value: string,
   ) => {
     setFormData((prev) => ({
