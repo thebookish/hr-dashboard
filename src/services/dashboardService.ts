@@ -47,12 +47,7 @@ class DashboardService {
       };
     } catch (error: any) {
       console.error("Failed to fetch dashboard stats:", error);
-      // Return fallback data if API calls fail
-      return {
-        totalEmployees: 0,
-        pendingLeaves: 0,
-        verificationRequests: 0,
-      };
+      throw new Error(error.message || "Failed to fetch dashboard statistics");
     }
   }
 
@@ -110,8 +105,7 @@ class DashboardService {
       );
     } catch (error: any) {
       console.error("Failed to fetch recent activities:", error);
-      // Return empty array if API calls fail
-      return [];
+      throw new Error(error.message || "Failed to fetch recent activities");
     }
   }
 }

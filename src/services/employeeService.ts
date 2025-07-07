@@ -178,40 +178,10 @@ class EmployeeService {
       }));
       return employees;
     } catch (error: any) {
-      // Return mock data if API fails (only verified employees)
       console.error("Failed to fetch approved employees:", error);
-      return [
-        {
-          id: "1",
-          name: "John Doe",
-          email: "john.doe@company.com",
-          phone: "+1234567890",
-          department: "Engineering",
-          position: "Software Engineer",
-          status: "active",
-          verified: true,
-          joinDate: "2023-01-15",
-          salary: 75000,
-          sickLeave: 5,
-          casualLeave: 10,
-          paidLeave: 15,
-        },
-        {
-          id: "3",
-          name: "Michael Brown",
-          email: "michael.brown@company.com",
-          phone: "+1234567892",
-          department: "HR",
-          position: "HR Specialist",
-          status: "active",
-          verified: true,
-          joinDate: "2022-11-10",
-          salary: 55000,
-          sickLeave: 2,
-          casualLeave: 5,
-          paidLeave: 18,
-        },
-      ];
+      throw new Error(
+        error.response?.data?.message || "Failed to fetch employees",
+      );
     }
   }
 
@@ -222,40 +192,10 @@ class EmployeeService {
       );
       return response.data;
     } catch (error: any) {
-      // Return mock data if API fails
       console.error("Failed to fetch employee:", error);
-      return {
-        firstName: "John",
-        surname: "Doe",
-        email: email,
-        mobile: "+1234567890",
-        dob: "1990-01-15",
-        gender: "Male",
-        maritalStatus: "Married",
-        sponsor: "TechCorp Solutions",
-        position: "Software Engineer",
-        joinDate: "2023-01-15",
-        retireDate: "2025-01-15",
-        bank: "Chase Bank",
-        accountNo: "1234567890",
-        passportNo: "US123456789",
-        emergencyName: "Jane Doe",
-        emergencyPhone: "+1234567891",
-        spouseName: "Jane Doe",
-        childDetails: [
-          {
-            name: "Tommy Doe",
-            gender: "Male",
-            dob: "2015-05-10",
-            schoolingYear: "Grade 3",
-            school: "Dubai International School",
-          },
-        ],
-        status: "active",
-        sickLeave: 5,
-        casualLeave: 10,
-        paidLeave: 15,
-      };
+      throw new Error(
+        error.response?.data?.message || "Failed to fetch employee data",
+      );
     }
   }
 
@@ -270,40 +210,10 @@ class EmployeeService {
       );
       return response.data;
     } catch (error: any) {
-      // Return mock updated data if API fails
       console.error("Failed to update employee:", error);
-      return {
-        firstName: data.firstName || "John",
-        surname: data.surname || "Doe",
-        email: email,
-        mobile: data.mobile || "+1234567890",
-        dob: data.dob || "1990-01-15",
-        gender: data.gender || "Male",
-        maritalStatus: data.maritalStatus || "Married",
-        sponsor: data.sponsor || "TechCorp Solutions",
-        position: data.position || "Software Engineer",
-        joinDate: data.joinDate || "2023-01-15",
-        retireDate: data.retireDate || "2025-01-15",
-        bank: data.bank || "Chase Bank",
-        accountNo: data.accountNo || "1234567890",
-        passportNo: data.passportNo || "US123456789",
-        emergencyName: data.emergencyName || "Jane Doe",
-        emergencyPhone: data.emergencyPhone || "+1234567891",
-        spouseName: data.spouseName || "Jane Doe",
-        childDetails: data.childDetails || [
-          {
-            name: "Tommy Doe",
-            gender: "Male",
-            dob: "2015-05-10",
-            schoolingYear: "Grade 3",
-            school: "Dubai International School",
-          },
-        ],
-        status: data.status || "active",
-        sickLeave: data.sickLeave || 5,
-        casualLeave: data.casualLeave || 10,
-        paidLeave: data.paidLeave || 15,
-      };
+      throw new Error(
+        error.response?.data?.message || "Failed to update employee",
+      );
     }
   }
 
@@ -318,13 +228,10 @@ class EmployeeService {
       });
       return response.data;
     } catch (error: any) {
-      // Return mock success response if API fails
       console.error("Failed to verify employee:", error);
-      return {
-        message: approved
-          ? "Employee verified successfully"
-          : "Employee verification rejected",
-      };
+      throw new Error(
+        error.response?.data?.message || "Failed to verify employee",
+      );
     }
   }
 }

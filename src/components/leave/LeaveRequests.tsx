@@ -5,16 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { User } from "lucide-react";
-import { Check, X, Calendar, Clock, MessageSquare } from "lucide-react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+  Check,
+  X,
+  Calendar,
+  Clock,
+  MessageSquare,
+  Phone,
+  Users,
+  FileSignature,
+  Building,
+} from "lucide-react";
+
 import leaveService, { LeaveRequest } from "@/services/leaveService";
 
 interface LeaveRequestsProps {
@@ -65,18 +67,20 @@ const LeaveRequests = ({
     }
   };
 
-  const handleRejectLeave = async (request: LeaveRequest, reason?: string) => {
+  const handleRejectLeave = async (request: LeaveRequest) => {
     try {
-      await leaveService.rejectLeave(request.employeeEmail, reason);
+      await leaveService.rejectLeave(request.employeeEmail);
       const updatedRequests = requests.map((req) =>
         req.id === request.id ? { ...req, status: "rejected" as const } : req,
       );
       setRequests(updatedRequests);
+
       if (onRequestUpdate) {
         onRequestUpdate({ ...request, status: "rejected" });
       }
     } catch (err: any) {
       console.error("Failed to reject leave:", err);
+      // Show error message to user but don't update UI on failure
     }
   };
 
@@ -199,10 +203,11 @@ const LeaveRequests = ({
                         </div>
                         <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
                           <Clock className="h-3 w-3" />
-                          {calculateDays(
-                            request.startDate,
-                            request.endDate,
-                          )}{" "}
+                          {request.noOfDays ||
+                            calculateDays(
+                              request.startDate,
+                              request.endDate,
+                            )}{" "}
                           days
                         </div>
                         <Badge
@@ -212,10 +217,63 @@ const LeaveRequests = ({
                           {request.leaveType}
                         </Badge>
                       </div>
+
+                      {/* Employee Details */}
+                      <div className="grid grid-cols-2 gap-2 mt-3 text-xs text-gray-600 dark:text-gray-400">
+                        {request.designation && (
+                          <div className="flex items-center gap-1">
+                            <Building className="h-3 w-3" />
+                            <span>{request.designation}</span>
+                          </div>
+                        )}
+                        {request.wing && (
+                          <div className="flex items-center gap-1">
+                            <Users className="h-3 w-3" />
+                            <span>{request.wing}</span>
+                          </div>
+                        )}
+                        {request.whatsapp && (
+                          <div className="flex items-center gap-1">
+                            <Phone className="h-3 w-3" />
+                            <span>WhatsApp: {request.whatsapp}</span>
+                          </div>
+                        )}
+                        {request.emergencyContact && (
+                          <div className="flex items-center gap-1">
+                            <Phone className="h-3 w-3" />
+                            <span>Emergency: {request.emergencyContact}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Substitute Information */}
+                      {(request.substituteName ||
+                        request.substituteContact) && (
+                        <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded text-xs">
+                          <div className="flex items-center gap-1 text-blue-700 dark:text-blue-300 font-medium mb-1">
+                            <Users className="h-3 w-3" />
+                            <span>Substitute Details:</span>
+                          </div>
+                          {request.substituteName && (
+                            <div>Name: {request.substituteName}</div>
+                          )}
+                          {request.substituteContact && (
+                            <div>Contact: {request.substituteContact}</div>
+                          )}
+                        </div>
+                      )}
+
                       {request.reason && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                           <strong>Reason:</strong> {request.reason}
                         </p>
+                      )}
+
+                      {request.signature && (
+                        <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          <FileSignature className="h-3 w-3" />
+                          <span>Signed by: {request.signature}</span>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -229,27 +287,15 @@ const LeaveRequests = ({
                       <Check className="h-4 w-4 mr-1" />
                       Approve
                     </Button>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-red-700 border-red-200 hover:bg-red-50"
-                        >
-                          <X className="h-4 w-4 mr-1" />
-                          Reject
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Reject Leave Request</DialogTitle>
-                        </DialogHeader>
-                        <RejectLeaveForm
-                          request={request}
-                          onReject={handleRejectLeave}
-                        />
-                      </DialogContent>
-                    </Dialog>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-red-700 border-red-200 hover:bg-red-50"
+                      onClick={() => handleRejectLeave(request)}
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Reject
+                    </Button>
                   </div>
                 </div>
               ))
@@ -293,6 +339,15 @@ const LeaveRequests = ({
                           {formatDate(request.startDate)} -{" "}
                           {formatDate(request.endDate)}
                         </div>
+                        <div className="flex items-center gap-1 text-sm text-gray-600">
+                          <Clock className="h-3 w-3" />
+                          {request.noOfDays ||
+                            calculateDays(
+                              request.startDate,
+                              request.endDate,
+                            )}{" "}
+                          days
+                        </div>
                         <Badge
                           variant="outline"
                           className="border-gray-200 text-gray-700"
@@ -322,54 +377,5 @@ const LeaveRequests = ({
     </div>
   );
 };
-
-// Reject Leave Form Component
-function RejectLeaveForm({
-  request,
-  onReject,
-}: {
-  request: LeaveRequest;
-  onReject: (request: LeaveRequest, reason?: string) => void;
-}) {
-  const [reason, setReason] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
-      await onReject(request, reason);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <p className="text-sm text-muted-foreground mb-4">
-          You are about to reject the leave request from{" "}
-          <strong>{request.employeeName}</strong>
-          for {request.leaveType} from{" "}
-          {new Date(request.startDate).toLocaleDateString()}
-          to {new Date(request.endDate).toLocaleDateString()}.
-        </p>
-        <Label htmlFor="reason">Reason for Rejection (Optional)</Label>
-        <Textarea
-          id="reason"
-          placeholder="Provide a reason for rejecting this leave request..."
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          rows={3}
-        />
-      </div>
-      <div className="flex justify-end gap-2">
-        <Button type="submit" variant="destructive" disabled={isLoading}>
-          {isLoading ? "Rejecting..." : "Reject Leave"}
-        </Button>
-      </div>
-    </form>
-  );
-}
 
 export default LeaveRequests;

@@ -146,7 +146,7 @@ const RecentActivity = ({
   }
 
   return (
-    <Card className="col-span-1 md:col-span-2">
+    <Card className="col-span-1 md:col-span-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
       <CardHeader>
         <CardTitle>Recent Activity</CardTitle>
       </CardHeader>

@@ -4,24 +4,42 @@ export interface LeaveRequest {
   id: string;
   employeeName: string;
   employeeEmail: string;
-  leaveType: "Sick Leave" | "Casual Leave" | "Paid Leave" | "Annual Leave";
+  leaveType: string;
   reason: string;
   startDate: string;
   endDate: string;
   status: "pending" | "approved" | "rejected";
   approvedBy?: string;
   approvedDate?: string;
+  // New fields from updated LeaveModel
+  noOfDays: number;
+  whatsapp: string;
+  emergencyContact: string;
+  substituteName: string;
+  substituteContact: string;
+  signature: string;
+  designation: string;
+  wing: string;
 }
 
 export interface LeaveModel {
   id: string;
   name: string;
   email: string;
-  type: "Sick Leave" | "Casual Leave" | "Paid Leave";
+  type: string;
   reason: string;
   fromDate: string;
   toDate: string;
   status: "Pending" | "Approved" | "Rejected";
+  // New fields
+  noOfDays: number;
+  whatsapp: string;
+  emergencyContact: string;
+  substituteName: string;
+  substituteContact: string;
+  signature: string;
+  designation: string;
+  wing: string;
 }
 
 class LeaveService {
@@ -34,89 +52,56 @@ class LeaveService {
         employeeName: leave.name || leave.employeeName,
         employeeEmail: leave.email || leave.employeeEmail,
         leaveType: leave.type || leave.leaveType,
-        reason: leave.reason,
+        reason: leave.reason || "",
         startDate: leave.fromDate || leave.startDate,
         endDate: leave.toDate || leave.endDate,
         status: leave.status?.toLowerCase() || "pending",
         approvedBy: leave.approvedBy,
         approvedDate: leave.approvedDate,
+        // New fields from updated LeaveModel
+        noOfDays: leave.noOfDays || 0,
+        whatsapp: leave.whatsapp || "",
+        emergencyContact: leave.emergencyContact || "",
+        substituteName: leave.substituteName || "",
+        substituteContact: leave.substituteContact || "",
+        signature: leave.signature || "",
+        designation: leave.designation || "",
+        wing: leave.wing || "",
       }));
       return leaves;
     } catch (error: any) {
-      // Return mock data if API fails
       console.error("Failed to fetch leave requests:", error);
-      return [
-        {
-          id: "1",
-          employeeName: "John Doe",
-          employeeEmail: "john.doe@company.com",
-          leaveType: "Annual Leave",
-          reason: "Family vacation",
-          startDate: "2024-02-15",
-          endDate: "2024-02-20",
-          status: "pending",
-        },
-        {
-          id: "2",
-          employeeName: "Emily Chen",
-          employeeEmail: "emily.chen@company.com",
-          leaveType: "Sick Leave",
-          reason: "Medical appointment",
-          startDate: "2024-02-10",
-          endDate: "2024-02-10",
-          status: "pending",
-        },
-        {
-          id: "3",
-          employeeName: "David Miller",
-          employeeEmail: "david.miller@company.com",
-          leaveType: "Casual Leave",
-          reason: "Personal work",
-          startDate: "2024-01-25",
-          endDate: "2024-01-26",
-          status: "approved",
-          approvedBy: "HR Manager",
-          approvedDate: "2024-01-20",
-        },
-      ];
+      throw new Error(
+        error.response?.data?.message || "Failed to fetch leave requests",
+      );
     }
   }
 
   async approveLeave(email: string): Promise<{ message: string }> {
     try {
-      const response = await axiosInstance.patch(
+      const response = await axiosInstance.put(
         `/leaves/approve?email=${encodeURIComponent(email)}`,
       );
       return response.data;
     } catch (error: any) {
-      // Return mock success response if API fails
       console.error("Failed to approve leave:", error);
-      return {
-        message: "Leave request approved successfully",
-      };
+      throw new Error(
+        error.response?.data?.message || "Failed to approve leave request",
+      );
     }
   }
 
-  async rejectLeave(
-    email: string,
-    reason?: string,
-  ): Promise<{ message: string }> {
+  async rejectLeave(email: string): Promise<{ message: string }> {
     try {
-      const response = await axiosInstance.patch(
+      const response = await axiosInstance.put(
         `/leaves/reject?email=${encodeURIComponent(email)}`,
-        {
-          reason,
-        },
       );
       return response.data;
     } catch (error: any) {
-      // Return mock success response if API fails
       console.error("Failed to reject leave:", error);
-      return {
-        message: reason
-          ? `Leave request rejected: ${reason}`
-          : "Leave request rejected successfully",
-      };
+      throw new Error(
+        error.response?.data?.message || "Failed to reject leave request",
+      );
     }
   }
 }

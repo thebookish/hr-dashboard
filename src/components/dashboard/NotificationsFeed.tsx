@@ -41,27 +41,7 @@ const NotificationsFeed = ({
     } catch (err: any) {
       setError(err.message);
       console.error("Failed to fetch notifications:", err);
-      // Fallback to default notifications
-      setNotifications([
-        {
-          id: "1",
-          title: "Leave Request",
-          message: "John Doe has requested annual leave for next week",
-          type: "info",
-          recipientEmail: user.email,
-          read: false,
-          createdDate: new Date().toISOString(),
-        },
-        {
-          id: "2",
-          title: "Verification Pending",
-          message: "New employee Sarah Smith needs document verification",
-          type: "warning",
-          recipientEmail: user.email,
-          read: false,
-          createdDate: new Date().toISOString(),
-        },
-      ]);
+      setNotifications([]);
     } finally {
       setIsLoading(false);
     }

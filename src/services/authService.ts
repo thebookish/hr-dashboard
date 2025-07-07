@@ -43,45 +43,18 @@ class AuthService {
 
       return response.data;
     } catch (error: any) {
-      // For demo purposes, allow login with mock data if API fails
       console.error("Login API failed:", error);
-      if (
-        credentials.email === "admin@hr.com" &&
-        credentials.password === "admin123"
-      ) {
-        const mockResponse = {
-          token: "mock-jwt-token-" + Date.now(),
-          user: {
-            id: "1",
-            email: credentials.email,
-            role: "admin",
-          },
-          message: "Login successful (mock)",
-        };
-        setToken(mockResponse.token);
-        setUser(mockResponse.user);
-        return mockResponse;
-      }
       throw new Error(error.response?.data?.message || "Login failed");
     }
   }
 
   async register(data: RegisterData): Promise<AuthResponse> {
     try {
-      const response = await axiosInstance.post("/auth/signup", data);
+      const response = await axiosInstance.post("/auth/register", data);
       return response.data;
     } catch (error: any) {
-      // Return mock success response if API fails
       console.error("Registration API failed:", error);
-      return {
-        token: "mock-jwt-token-" + Date.now(),
-        user: {
-          id: Date.now().toString(),
-          email: data.email,
-          role: data.role || "user",
-        },
-        message: "Registration successful (mock)",
-      };
+      throw new Error(error.response?.data?.message || "Registration failed");
     }
   }
 
@@ -90,11 +63,8 @@ class AuthService {
       const response = await axiosInstance.post("/auth/send-otp", { email });
       return response.data;
     } catch (error: any) {
-      // Return mock success response if API fails
       console.error("Send OTP API failed:", error);
-      return {
-        message: "OTP sent successfully (mock)",
-      };
+      throw new Error(error.response?.data?.message || "Failed to send OTP");
     }
   }
 
@@ -110,22 +80,7 @@ class AuthService {
 
       return response.data;
     } catch (error: any) {
-      // For demo purposes, accept any 6-digit OTP if API fails
       console.error("OTP verification API failed:", error);
-      if (data.otp.length === 6) {
-        const mockResponse = {
-          token: "mock-jwt-token-" + Date.now(),
-          user: {
-            id: Date.now().toString(),
-            email: data.email,
-            role: "user",
-          },
-          message: "OTP verified successfully (mock)",
-        };
-        setToken(mockResponse.token);
-        setUser(mockResponse.user);
-        return mockResponse;
-      }
       throw new Error(
         error.response?.data?.message || "OTP verification failed",
       );

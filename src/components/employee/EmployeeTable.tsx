@@ -240,7 +240,7 @@ const EmployeeTable = ({
                         <Edit className="h-4 w-4" />
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                       <DialogHeader>
                         <DialogTitle>
                           Edit Employee: {employee.name}
@@ -845,7 +845,10 @@ function EmployeeEditForm({
               </Button>
             </div>
             {formData.childDetails?.map((child, index) => (
-              <div key={index} className="border p-4 rounded-lg space-y-3">
+              <div
+                key={index}
+                className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 p-4 rounded-lg space-y-3"
+              >
                 <div className="flex justify-between items-center">
                   <h5 className="font-medium">Child {index + 1}</h5>
                   <Button

@@ -209,13 +209,13 @@ export default function HRServicesPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col gap-8 p-6 bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
-        <div className="flex justify-between items-center bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+      <div className="flex flex-col gap-8 p-6 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-blue-900 min-h-screen">
+        <div className="flex justify-between items-center bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent">
               Dubai Embassy HR Services
             </h1>
-            <p className="text-gray-600 mt-2 text-lg">
+            <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
               Comprehensive management of salaries, family information,
               sponsors, and tasks.
             </p>
@@ -245,10 +245,10 @@ export default function HRServicesPage() {
         </div>
 
         {/* Employee Selection */}
-        <Card className="bg-gradient-to-r from-blue-600 to-blue-700 text-white border-blue-300">
+        <Card className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white border-blue-300 dark:border-blue-600">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-3">
-              <div className="p-2 bg-white/20 rounded-lg">
+              <div className="p-2 bg-white/20 dark:bg-white/30 rounded-lg">
                 <Users className="h-5 w-5" />
               </div>
               Select Employee
@@ -268,7 +268,7 @@ export default function HRServicesPage() {
                   placeholder="Enter employee email..."
                   value={selectedEmployee}
                   onChange={(e) => setSelectedEmployee(e.target.value)}
-                  className="bg-white/90 border-white/30 text-gray-900 placeholder:text-gray-500 mt-2"
+                  className="bg-white/90 dark:bg-white/95 border-white/30 dark:border-white/40 text-gray-900 placeholder:text-gray-500 mt-2"
                 />
               </div>
               <Button
@@ -280,7 +280,7 @@ export default function HRServicesPage() {
                 }}
                 disabled={!selectedEmployee || isLoading}
                 variant="secondary"
-                className="bg-white text-blue-700 hover:bg-gray-100 font-semibold"
+                className="bg-white dark:bg-gray-100 text-blue-700 hover:bg-gray-100 dark:hover:bg-gray-200 font-semibold"
               >
                 {isLoading ? "Loading..." : "Load Employee Data"}
               </Button>
@@ -290,10 +290,10 @@ export default function HRServicesPage() {
 
         {/* Report Summary */}
         {reportData && (
-          <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
-            <CardHeader className="bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-t-xl">
+          <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-700">
+            <CardHeader className="bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-700 dark:to-emerald-700 text-white rounded-t-xl">
               <CardTitle className="flex items-center gap-3 text-white">
-                <div className="p-2 bg-white/20 rounded-lg">
+                <div className="p-2 bg-white/20 dark:bg-white/30 rounded-lg">
                   <FileText className="h-5 w-5" />
                 </div>
                 Dubai Embassy Report Summary
@@ -305,39 +305,39 @@ export default function HRServicesPage() {
                   <div className="text-2xl font-bold text-blue-600">
                     {reportData.employees.length}
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
                     Total Employees
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                     {
                       reportData.leaves.filter((l) => l.status === "Approved")
                         .length
                     }
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
                     Approved Leaves
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-orange-600">
+                  <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
                     {reportData.sponsors.length}
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
                     Active Sponsors
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600">
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                     {reportData.tasks.length}
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
                     Total Tasks
                   </div>
                 </div>
               </div>
-              <div className="mt-4 text-sm text-muted-foreground">
+              <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
                 Generated on:{" "}
                 {new Date(reportData.generatedDate).toLocaleString()}
               </div>
@@ -346,9 +346,9 @@ export default function HRServicesPage() {
         )}
 
         {/* Services Tabs */}
-        <Card className="bg-white shadow-lg border-gray-200">
+        <Card className="bg-white dark:bg-gray-800 shadow-lg border-gray-200 dark:border-gray-700">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-4 bg-gray-50 p-2 rounded-xl">
+            <TabsList className="grid w-full grid-cols-4 bg-gray-50 dark:bg-gray-700 p-2 rounded-xl">
               <TabsTrigger
                 value="salary"
                 className="flex items-center gap-2 font-semibold"
@@ -519,9 +519,11 @@ function SalaryManagement({
                   />
                 </div>
               </div>
-              <div className="flex justify-between items-center p-4 bg-muted rounded-lg">
-                <span className="font-medium">Total Salary:</span>
-                <span className="text-2xl font-bold">
+              <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <span className="font-medium text-gray-900 dark:text-gray-100">
+                  Total Salary:
+                </span>
+                <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   $
                   {(
                     formData.basic +
@@ -536,7 +538,7 @@ function SalaryManagement({
               </Button>
             </form>
           ) : (
-            <p className="text-muted-foreground">
+            <p className="text-gray-600 dark:text-gray-400">
               Select an employee to view salary information.
             </p>
           )}
@@ -553,7 +555,7 @@ function SalaryManagement({
               {salaryData.paymentHistory.map((payment, index) => (
                 <div
                   key={index}
-                  className="flex justify-between items-center p-3 border rounded"
+                  className="flex justify-between items-center p-3 border border-gray-200 dark:border-gray-600 rounded"
                 >
                   <span>{payment.month}</span>
                   <div className="flex items-center gap-2">
@@ -716,7 +718,9 @@ function FamilyManagement({
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground">No family members found.</p>
+            <p className="text-gray-600 dark:text-gray-400">
+              No family members found.
+            </p>
           )}
         </CardContent>
       </Card>
@@ -820,7 +824,7 @@ function SponsorManagement({
             </Button>
           </form>
         ) : (
-          <p className="text-muted-foreground">
+          <p className="text-gray-600 dark:text-gray-400">
             Select an employee to view sponsor information.
           </p>
         )}
@@ -861,26 +865,26 @@ function TaskManagement({
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "High":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300";
       case "Medium":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300";
       case "Low":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300";
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Completed":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300";
       case "In Progress":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300";
       case "Pending":
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300";
     }
   };
 
@@ -961,11 +965,13 @@ function TaskManagement({
               {tasks.map((task) => (
                 <div
                   key={task.id}
-                  className="flex items-center justify-between p-3 border rounded"
+                  className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-600 rounded"
                 >
                   <div>
-                    <p className="font-medium">{task.title}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      {task.title}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                       Deadline: {new Date(task.deadline).toLocaleDateString()}
                     </p>
                   </div>
@@ -981,7 +987,7 @@ function TaskManagement({
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground">No tasks found.</p>
+            <p className="text-gray-600 dark:text-gray-400">No tasks found.</p>
           )}
         </CardContent>
       </Card>

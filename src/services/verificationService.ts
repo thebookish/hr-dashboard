@@ -207,152 +207,10 @@ class VerificationService {
       }));
     } catch (error: any) {
       console.error("Failed to fetch verification requests:", error);
-      // Return mock data if API fails
-      return [
-        {
-          id: "1",
-          employeeName: "Sarah Johnson",
-          employeeEmail: "sarah.johnson@company.com",
-          submittedDate: "2024-02-10T10:30:00Z",
-          status: "pending",
-          documents: {
-            passport: `${this.BASE_URL}/docs/passport-sarah.pdf`,
-            eid: `${this.BASE_URL}/docs/eid-sarah.pdf`,
-            visa: `${this.BASE_URL}/docs/visa-sarah.pdf`,
-            cv: `${this.BASE_URL}/docs/cv-sarah.pdf`,
-            certificates: `${this.BASE_URL}/docs/cert-sarah.pdf`,
-            photo:
-              "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&q=80",
-          },
-          personalInfo: {
-            firstName: "Sarah",
-            surname: "Johnson",
-            dob: "1992-05-15",
-            gender: "Female",
-            maritalStatus: "Single",
-            presentAddress: "Dubai Marina, Dubai, UAE",
-            permanentAddress: "123 Main St, New York, USA",
-            passportNo: "US123456789",
-            emirateIdNo: "784-1992-1234567-8",
-            eidIssue: "2020-01-15",
-            eidExpiry: "2025-01-15",
-            passportIssue: "2019-06-10",
-            passportExpiry: "2029-06-10",
-            visaNo: "UAE987654321",
-            visaExpiry: "2025-03-01",
-            visaType: "Employment Visa",
-            sponsor: "TechCorp Dubai",
-            nationality: "American",
-            position: "Software Developer",
-            wing: "Engineering",
-            homeLocal: "Local",
-            joinDate: "2024-03-01",
-            retireDate: "2029-03-01",
-            landPhone: "+97143334444",
-            mobile: "+971501234567",
-            email: "sarah.johnson@company.com",
-            altMobile: "+971509876543",
-            botim: "+971501234567",
-            whatsapp: "+971501234567",
-            emergency: "+971501234568",
-            bank: "Emirates NBD",
-            accountNo: "1234567890",
-            accountName: "Sarah Johnson",
-            iban: "AE070331234567890123456",
-            emergencyName: "John Johnson",
-            emergencyRelation: "Father",
-            emergencyPhone: "+971501234568",
-            emergencyEmail: "john.johnson@email.com",
-            emergencyBotim: "+971501234568",
-            emergencyWhatsapp: "+971501234568",
-            spouseName: "",
-            childDetails: [],
-            sickLeave: 5,
-            casualLeave: 10,
-            paidLeave: 15,
-            phone: "+971501234567",
-            address: "Dubai Marina, Dubai, UAE",
-          },
-        },
-        {
-          id: "2",
-          employeeName: "Ahmed Al-Rashid",
-          employeeEmail: "ahmed.rashid@company.com",
-          submittedDate: "2024-02-08T14:20:00Z",
-          status: "pending",
-          documents: {
-            passport: `${this.BASE_URL}/docs/passport-ahmed.pdf`,
-            eid: `${this.BASE_URL}/docs/eid-ahmed.pdf`,
-            cv: `${this.BASE_URL}/docs/cv-ahmed.pdf`,
-            photo:
-              "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80",
-          },
-          personalInfo: {
-            firstName: "Ahmed",
-            surname: "Al-Rashid",
-            dob: "1988-12-03",
-            gender: "Male",
-            maritalStatus: "Married",
-            presentAddress: "Jumeirah, Dubai, UAE",
-            permanentAddress: "Jumeirah, Dubai, UAE",
-            passportNo: "UAE987654321",
-            emirateIdNo: "784-1988-9876543-2",
-            eidIssue: "2018-12-01",
-            eidExpiry: "2028-12-01",
-            passportIssue: "2018-01-15",
-            passportExpiry: "2028-01-15",
-            visaNo: "",
-            visaExpiry: "",
-            visaType: "Local",
-            sponsor: "Local Sponsor",
-            nationality: "Emirati",
-            position: "Marketing Manager",
-            wing: "Marketing",
-            homeLocal: "Local",
-            joinDate: "2024-02-20",
-            retireDate: "2029-02-20",
-            landPhone: "+97143335555",
-            mobile: "+971509876543",
-            email: "ahmed.rashid@company.com",
-            altMobile: "+971501234567",
-            botim: "+971509876543",
-            whatsapp: "+971509876543",
-            emergency: "+971509876544",
-            bank: "ADCB",
-            accountNo: "9876543210",
-            accountName: "Ahmed Al-Rashid",
-            iban: "AE070021987654321012345",
-            emergencyName: "Fatima Al-Rashid",
-            emergencyRelation: "Wife",
-            emergencyPhone: "+971509876544",
-            emergencyEmail: "fatima.rashid@email.com",
-            emergencyBotim: "+971509876544",
-            emergencyWhatsapp: "+971509876544",
-            spouseName: "Fatima Al-Rashid",
-            childDetails: [
-              {
-                name: "Omar Al-Rashid",
-                gender: "Male",
-                dob: "2015-08-20",
-                schoolingYear: "Grade 4",
-                school: "Dubai International Academy",
-              },
-              {
-                name: "Aisha Al-Rashid",
-                gender: "Female",
-                dob: "2018-03-12",
-                schoolingYear: "Grade 1",
-                school: "Dubai International Academy",
-              },
-            ],
-            sickLeave: 3,
-            casualLeave: 8,
-            paidLeave: 20,
-            phone: "+971509876543",
-            address: "Jumeirah, Dubai, UAE",
-          },
-        },
-      ];
+      throw new Error(
+        error.response?.data?.message ||
+          "Failed to fetch verification requests",
+      );
     }
   }
 
@@ -386,12 +244,7 @@ class VerificationService {
         variant: "destructive",
       });
 
-      // Return mock success response if API fails
-      return {
-        message: decision.approved
-          ? "Employee verification approved successfully"
-          : "Employee verification rejected",
-      };
+      throw error;
     }
   }
 

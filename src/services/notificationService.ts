@@ -105,37 +105,10 @@ class NotificationService {
       }));
       return notifications;
     } catch (error: any) {
-      // Return mock data if API fails
       console.error("Failed to fetch notifications:", error);
-      return [
-        {
-          id: "1",
-          title: "Leave Request",
-          message: "John Doe has requested annual leave for next week",
-          type: "info",
-          recipientEmail: email,
-          read: false,
-          createdDate: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        },
-        {
-          id: "2",
-          title: "Verification Pending",
-          message: "New employee Emily Chen needs document verification",
-          type: "warning",
-          recipientEmail: email,
-          read: false,
-          createdDate: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-        },
-        {
-          id: "3",
-          title: "System Update",
-          message: "HR system will be updated tonight at 2 AM",
-          type: "info",
-          recipientEmail: email,
-          read: true,
-          createdDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-        },
-      ];
+      throw new Error(
+        error.response?.data?.message || "Failed to fetch notifications",
+      );
     }
   }
 

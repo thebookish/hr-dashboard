@@ -25,26 +25,10 @@ class FamilyService {
       );
       return response.data;
     } catch (error: any) {
-      // Return mock data if API fails
       console.error("Failed to fetch family members:", error);
-      return [
-        {
-          id: "1",
-          name: "Jane Doe",
-          relation: "Spouse",
-          age: 32,
-          contact: "+1234567891",
-          employeeEmail: email,
-        },
-        {
-          id: "2",
-          name: "Tommy Doe",
-          relation: "Child",
-          age: 8,
-          contact: "N/A",
-          employeeEmail: email,
-        },
-      ];
+      throw new Error(
+        error.response?.data?.message || "Failed to fetch family members",
+      );
     }
   }
 
@@ -53,16 +37,10 @@ class FamilyService {
       const response = await axiosInstance.post("/family/add", data);
       return response.data;
     } catch (error: any) {
-      // Return mock success response if API fails
       console.error("Failed to add family member:", error);
-      return {
-        id: Date.now().toString(),
-        name: data.name,
-        relation: data.relation,
-        age: data.age,
-        contact: data.contact,
-        employeeEmail: data.employeeEmail,
-      };
+      throw new Error(
+        error.response?.data?.message || "Failed to add family member",
+      );
     }
   }
 
@@ -71,11 +49,10 @@ class FamilyService {
       const response = await axiosInstance.delete(`/family/${id}`);
       return response.data;
     } catch (error: any) {
-      // Return mock success response if API fails
       console.error("Failed to delete family member:", error);
-      return {
-        message: "Family member deleted successfully",
-      };
+      throw new Error(
+        error.response?.data?.message || "Failed to delete family member",
+      );
     }
   }
 }

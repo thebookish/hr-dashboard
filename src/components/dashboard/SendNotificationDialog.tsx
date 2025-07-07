@@ -144,7 +144,7 @@ const SendNotificationDialog = ({ children }: SendNotificationDialogProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Send className="h-5 w-5" />
@@ -324,7 +324,7 @@ const SendNotificationDialog = ({ children }: SendNotificationDialogProps) => {
                   </div>
                 )}
 
-                <div className="max-h-48 overflow-y-auto border rounded-lg p-2 space-y-2">
+                <div className="max-h-48 overflow-y-auto border border-gray-200 dark:border-gray-600 rounded-lg p-2 space-y-2 bg-white dark:bg-gray-800">
                   {employees.map((employee) => (
                     <div
                       key={employee.id}

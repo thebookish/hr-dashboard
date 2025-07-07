@@ -329,7 +329,7 @@ const VerificationRequests = ({
                           View Details
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                         <DialogHeader>
                           <DialogTitle>
                             Verification Request: {request.employeeName}
@@ -366,7 +366,7 @@ const VerificationRequests = ({
                           Reject
                         </Button>
                       </DialogTrigger>
-                      <DialogContent>
+                      <DialogContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                         <DialogHeader>
                           <DialogTitle>Reject Verification Request</DialogTitle>
                         </DialogHeader>
@@ -394,9 +394,9 @@ const VerificationRequests = ({
 
       {/* Processed Requests */}
       {processedRequests.length > 0 && (
-        <Card className="w-full bg-white border border-gray-200">
+        <Card className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="text-gray-800">
+            <CardTitle className="text-gray-800 dark:text-gray-200">
               Recent Verification Decisions
             </CardTitle>
           </CardHeader>
@@ -405,36 +405,36 @@ const VerificationRequests = ({
               {processedRequests.slice(0, 5).map((request) => (
                 <div
                   key={request.id}
-                  className="flex items-center justify-between p-4 border border-gray-100 rounded-lg"
+                  className="flex items-center justify-between p-4 border border-gray-100 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
                 >
                   <div className="flex items-center space-x-4">
-                    <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                      <User className="h-4 w-4 text-gray-600" />
+                    <div className="flex-shrink-0 w-8 h-8 bg-gray-100 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                      <User className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                     </div>
                     <div>
-                      <h3 className="font-medium text-gray-900">
+                      <h3 className="font-medium text-gray-900 dark:text-gray-100">
                         {request.employeeName}
                       </h3>
                       <div className="flex items-center gap-4 mt-1">
-                        <div className="flex items-center gap-1 text-sm text-gray-600">
+                        <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
                           <Briefcase className="h-3 w-3" />
                           {request.personalInfo.position}
                         </div>
                         {getStatusBadge(request.status)}
                       </div>
                       {request.rejectionReason && (
-                        <p className="text-sm text-red-600 mt-1">
+                        <p className="text-sm text-red-600 dark:text-red-400 mt-1">
                           Reason: {request.rejectionReason}
                         </p>
                       )}
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                       {request.reviewedDate && formatDate(request.reviewedDate)}
                     </p>
                     {request.reviewedBy && (
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         by {request.reviewedBy}
                       </p>
                     )}
@@ -477,11 +477,13 @@ function VerificationDetailsView({
     if (!url) return null;
 
     return (
-      <div className="border rounded-lg p-4">
+      <div className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-blue-600" />
-            <span className="font-medium">{title}</span>
+            <span className="font-medium text-gray-900 dark:text-gray-100">
+              {title}
+            </span>
           </div>
           <div className="flex gap-2">
             <Button
@@ -915,7 +917,7 @@ function VerificationDetailsView({
                       {request.personalInfo.childDetails.map((child, index) => (
                         <div
                           key={index}
-                          className="border rounded-lg p-3 bg-gray-50"
+                          className="border border-gray-200 dark:border-gray-600 rounded-lg p-3 bg-gray-50 dark:bg-gray-700"
                         >
                           <div className="grid grid-cols-2 gap-2 text-sm">
                             <div>
@@ -1011,11 +1013,13 @@ function VerificationDetailsView({
               fileName={`references-${request.employeeName.replace(/\s+/g, "-")}.pdf`}
             />
             {request.documents.photo && (
-              <div className="border rounded-lg p-4">
+              <div className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <User className="h-5 w-5 text-blue-600" />
-                    <span className="font-medium">Photo</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">
+                      Photo
+                    </span>
                   </div>
                   <div className="flex gap-2">
                     <Button
@@ -1044,7 +1048,7 @@ function VerificationDetailsView({
                 <img
                   src={request.documents.photo}
                   alt={`${request.employeeName} photo`}
-                  className="w-32 h-32 object-cover rounded-lg border"
+                  className="w-32 h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
                 />
               </div>
             )}
@@ -1053,11 +1057,11 @@ function VerificationDetailsView({
 
         <TabsContent value="actions" className="space-y-4">
           <div className="flex flex-col gap-4">
-            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-              <h4 className="font-medium text-green-800 mb-2">
+            <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg">
+              <h4 className="font-medium text-green-800 dark:text-green-300 mb-2">
                 Approve Verification
               </h4>
-              <p className="text-sm text-green-700 mb-4">
+              <p className="text-sm text-green-700 dark:text-green-300 mb-4">
                 This will approve the employee's verification request and grant
                 them access to the system.
               </p>
@@ -1070,11 +1074,11 @@ function VerificationDetailsView({
               </Button>
             </div>
 
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-              <h4 className="font-medium text-red-800 mb-2">
+            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
+              <h4 className="font-medium text-red-800 dark:text-red-300 mb-2">
                 Reject Verification
               </h4>
-              <p className="text-sm text-red-700 mb-4">
+              <p className="text-sm text-red-700 dark:text-red-300 mb-4">
                 This will reject the employee's verification request. Please
                 provide a reason for rejection.
               </p>
@@ -1085,7 +1089,7 @@ function VerificationDetailsView({
                     Reject Employee
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                   <DialogHeader>
                     <DialogTitle>Reject Verification Request</DialogTitle>
                   </DialogHeader>

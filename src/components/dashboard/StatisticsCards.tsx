@@ -24,9 +24,7 @@ const StatisticCard = ({
   bgColor = "bg-white dark:bg-gray-800",
 }: StatisticCardProps) => {
   return (
-    <Card
-      className={`${bgColor} border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow`}
-    >
+    <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
       <CardContent className="p-6">
         <div className="flex justify-between items-start">
           <div>
