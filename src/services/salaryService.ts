@@ -31,40 +31,22 @@ class SalaryService {
       const response = await axiosInstance.get(
         `/salary-info/get-salary?email=${encodeURIComponent(email)}`,
       );
-      return response.data;
-    } catch (error: any) {
-      // Return mock data if API fails
-      console.error("Failed to fetch salary info:", error);
+      // Ensure the response matches the SalaryModel structure
+      const salaryData = response.data;
       return {
-        email,
-        basic: 50000,
-        hra: 15000,
-        allowance: 5000,
-        deduction: 2000,
-        paymentHistory: [
-          {
-            month: "January 2024",
-            amount: 68000,
-            status: "Paid",
-          },
-          {
-            month: "December 2023",
-            amount: 68000,
-            status: "Paid",
-          },
-          {
-            month: "February 2024",
-            amount: 68000,
-            status: "Pending",
-          },
-        ],
-        upcomingIncrements: [
-          {
-            effectiveDate: "2024-04-01",
-            newSalary: 75000,
-          },
-        ],
+        email: salaryData.email || email,
+        basic: salaryData.basic || 0,
+        hra: salaryData.hra || 0,
+        allowance: salaryData.allowance || 0,
+        deduction: salaryData.deduction || 0,
+        paymentHistory: salaryData.paymentHistory || [],
+        upcomingIncrements: salaryData.upcomingIncrements || [],
       };
+    } catch (error: any) {
+      console.error("Failed to fetch salary info:", error);
+      throw new Error(
+        error.response?.data?.message || "Failed to fetch salary information",
+      );
     }
   }
 
@@ -74,19 +56,22 @@ class SalaryService {
         "/salary-info/add-salary",
         data,
       );
-      return response.data;
-    } catch (error: any) {
-      // Return mock success response if API fails
-      console.error("Failed to add salary info:", error);
+      // Ensure the response matches the SalaryModel structure
+      const salaryData = response.data;
       return {
-        email: data.email,
-        basic: data.basic,
-        hra: data.hra || 0,
-        allowance: data.allowance || 0,
-        deduction: data.deduction || 0,
-        paymentHistory: [],
-        upcomingIncrements: [],
+        email: salaryData.email || data.email,
+        basic: salaryData.basic || data.basic,
+        hra: salaryData.hra || data.hra || 0,
+        allowance: salaryData.allowance || data.allowance || 0,
+        deduction: salaryData.deduction || data.deduction || 0,
+        paymentHistory: salaryData.paymentHistory || [],
+        upcomingIncrements: salaryData.upcomingIncrements || [],
       };
+    } catch (error: any) {
+      console.error("Failed to add salary info:", error);
+      throw new Error(
+        error.response?.data?.message || "Failed to add salary information",
+      );
     }
   }
 
@@ -99,29 +84,22 @@ class SalaryService {
         `/salary-info/${encodeURIComponent(email)}`,
         data,
       );
-      return response.data;
-    } catch (error: any) {
-      // Return mock updated data if API fails
-      console.error("Failed to update salary info:", error);
+      // Ensure the response matches the SalaryModel structure
+      const salaryData = response.data;
       return {
-        email,
-        basic: data.basic || 50000,
-        hra: data.hra || 15000,
-        allowance: data.allowance || 5000,
-        deduction: data.deduction || 2000,
-        paymentHistory: [
-          {
-            month: "January 2024",
-            amount:
-              (data.basic || 50000) +
-              (data.hra || 15000) +
-              (data.allowance || 5000) -
-              (data.deduction || 2000),
-            status: "Paid",
-          },
-        ],
-        upcomingIncrements: [],
+        email: salaryData.email || email,
+        basic: salaryData.basic || data.basic || 0,
+        hra: salaryData.hra || data.hra || 0,
+        allowance: salaryData.allowance || data.allowance || 0,
+        deduction: salaryData.deduction || data.deduction || 0,
+        paymentHistory: salaryData.paymentHistory || [],
+        upcomingIncrements: salaryData.upcomingIncrements || [],
       };
+    } catch (error: any) {
+      console.error("Failed to update salary info:", error);
+      throw new Error(
+        error.response?.data?.message || "Failed to update salary information",
+      );
     }
   }
 }

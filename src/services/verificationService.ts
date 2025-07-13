@@ -218,17 +218,14 @@ class VerificationService {
     decision: VerificationDecision,
   ): Promise<{ message: string }> {
     try {
-      const response = await axiosInstance.post("/employees/verify", {
+      const response = await axiosInstance.put("/employees/verify", {
         email: decision.employeeEmail,
-        approved: decision.approved,
-        reason: decision.reason,
       });
 
       toast({
         title: "Verification Updated",
-        description: decision.approved
-          ? "Employee verification approved successfully"
-          : "Employee verification rejected",
+        description: "Employee verification approved successfully",
+
         variant: "default",
       });
 
@@ -247,7 +244,33 @@ class VerificationService {
       throw error;
     }
   }
+  async rejectVerification(
+    decision: VerificationDecision,
+  ): Promise<{ message: string }> {
+    try {
+      const response = await axiosInstance.put("/employees/decline", {
+        email: decision.employeeEmail,
+      });
 
+      toast({
+        title: "Verification Rejected",
+      });
+
+      return response.data;
+    } catch (error: any) {
+      console.error("Failed to update verification:", error);
+
+      toast({
+        title: "Update Failed",
+        description:
+          error.response?.data?.message ||
+          "Failed to update verification status",
+        variant: "destructive",
+      });
+
+      throw error;
+    }
+  }
   async downloadDocument(documentUrl: string, fileName: string): Promise<void> {
     try {
       // For demo purposes, we'll simulate document download

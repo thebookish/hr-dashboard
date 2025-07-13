@@ -36,21 +36,13 @@ class NotificationService {
       // Show success toast
       toast({
         title: "Notification Sent",
-        description: `Notification sent to ${data.email}`,
+        description: `Notification sent`,
         variant: "default",
       });
 
       return response.data;
     } catch (error: any) {
-      // Show error toast
-      toast({
-        title: "Failed to Send Notification",
-        description:
-          error.response?.data?.message ||
-          "An error occurred while sending the notification",
-        variant: "destructive",
-      });
-
+      console.error("Failed to send notification:", error);
       throw new Error(
         error.response?.data?.message || "Failed to send notification",
       );
@@ -61,9 +53,16 @@ class NotificationService {
     notifications: NotificationData[],
   ): Promise<NotificationModel[]> {
     try {
-      const response = await axiosInstance.post("/notifications/bulk-send", {
-        notifications,
-      });
+      const results = [];
+
+      // Send each notification individually using the same endpoint
+      for (const notification of notifications) {
+        const response = await axiosInstance.post(
+          "/notifications/send",
+          notification,
+        );
+        results.push(response.data);
+      }
 
       toast({
         title: "Bulk Notifications Sent",
@@ -71,16 +70,9 @@ class NotificationService {
         variant: "default",
       });
 
-      return response.data;
+      return results;
     } catch (error: any) {
-      toast({
-        title: "Failed to Send Bulk Notifications",
-        description:
-          error.response?.data?.message ||
-          "An error occurred while sending notifications",
-        variant: "destructive",
-      });
-
+      console.error("Failed to send bulk notifications:", error);
       throw new Error(
         error.response?.data?.message || "Failed to send bulk notifications",
       );

@@ -217,20 +217,30 @@ class EmployeeService {
     }
   }
 
-  async verifyEmployee(
-    email: string,
-    approved: boolean,
-  ): Promise<{ message: string }> {
+  async verifyEmployee(email: string): Promise<{ message: string }> {
     try {
-      const response = await axiosInstance.patch("/employees/verify", {
-        email,
-        approved,
-      });
+      const response = await axiosInstance.put(
+        `/employees/verify/?email=${encodeURIComponent(email)}`,
+      );
       return response.data;
     } catch (error: any) {
       console.error("Failed to verify employee:", error);
       throw new Error(
         error.response?.data?.message || "Failed to verify employee",
+      );
+    }
+  }
+
+  async declineEmployee(email: string): Promise<{ message: string }> {
+    try {
+      const response = await axiosInstance.put(
+        `/employees/decline/?email=${encodeURIComponent(email)}`,
+      );
+      return response.data;
+    } catch (error: any) {
+      console.error("Failed to decline employee:", error);
+      throw new Error(
+        error.response?.data?.message || "Failed to decline employee",
       );
     }
   }

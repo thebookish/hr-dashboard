@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { User } from "lucide-react";
 import dashboardService, { ActivityItem } from "@/services/dashboardService";
 
 interface RecentActivityProps {
@@ -63,16 +63,9 @@ const RecentActivity = ({
     return (
       <div className="flex items-center justify-between p-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
         <div className="flex items-center gap-3">
-          <Avatar>
-            <AvatarImage
-              src={
-                activity.avatar ||
-                `https://api.dicebear.com/7.x/avataaars/svg?seed=${activity.employeeEmail}`
-              }
-              alt={activity.employeeName}
-            />
-            <AvatarFallback>{activity.employeeName.charAt(0)}</AvatarFallback>
-          </Avatar>
+          <div className="flex-shrink-0 w-10 h-10 bg-gray-100 dark:bg-gray-600 rounded-full flex items-center justify-center">
+            <User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+          </div>
           <div>
             <p className="font-medium">{activity.employeeName}</p>
             <p className="text-sm text-gray-600 dark:text-gray-400">

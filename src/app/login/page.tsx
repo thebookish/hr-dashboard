@@ -16,10 +16,12 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Icons } from "@/components/ui/icons";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function LoginPage() {
   const router = useRouter();
   const { login, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -38,9 +40,40 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
+      toast({
+        title: "Login Successful",
+        description: "Welcome back! Redirecting to dashboard...",
+      });
       router.push("/"); // Redirect to dashboard
     } catch (err: any) {
-      setError(err.message || "Failed to login. Please try again.");
+      const errorMessage = err.message || "Failed to login. Please try again.";
+      setError(errorMessage);
+
+      // Show toast for network errors
+      if (
+        errorMessage.includes("Network connection failed") ||
+        errorMessage.includes("Unable to connect")
+      ) {
+        toast({
+          variant: "destructive",
+          title: "Connection Error",
+          description:
+            "Unable to connect to the server. Please check your internet connection and try again.",
+        });
+      } else if (errorMessage.includes("Invalid email or password")) {
+        toast({
+          variant: "destructive",
+          title: "Login Failed",
+          description:
+            "Invalid credentials. Please check your email and password.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Login Error",
+          description: errorMessage,
+        });
+      }
     } finally {
       setIsLoading(false);
     }

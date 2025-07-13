@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { toast } from "@/components/ui/use-toast";
 import employeeService, {
   Employee,
   EmployeeModelNew,
@@ -90,21 +91,41 @@ const EmployeeTable = ({
     setFilteredEmployees(filtered);
   };
 
-  const handleVerifyEmployee = async (
-    employee: Employee,
-    approved: boolean,
-  ) => {
+  const handleVerifyEmployee = async (employee: Employee) => {
     try {
-      await employeeService.verifyEmployee(employee.email, approved);
-      const updatedEmployees = employees.map((emp) =>
-        emp.email === employee.email ? { ...emp, verified: approved } : emp,
-      );
-      setEmployees(updatedEmployees);
-      if (onEmployeeUpdate) {
-        onEmployeeUpdate({ ...employee, verified: approved });
-      }
+      await employeeService.verifyEmployee(employee.email);
+
+      toast({
+        title: "Success",
+        description: `Employee ${employee.name} has been approved successfully`,
+        variant: "default",
+      });
     } catch (err: any) {
       console.error("Failed to verify employee:", err);
+      toast({
+        title: "Error",
+        description: err.message || "Failed to approve employee",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeclineEmployee = async (employee: Employee) => {
+    try {
+      await employeeService.declineEmployee(employee.email);
+
+      toast({
+        title: "Success",
+        description: `Employee ${employee.name} has been declined`,
+        variant: "default",
+      });
+    } catch (err: any) {
+      console.error("Failed to decline employee:", err);
+      toast({
+        title: "Error",
+        description: err.message || "Failed to decline employee",
+        variant: "destructive",
+      });
     }
   };
 
@@ -259,7 +280,7 @@ const EmployeeTable = ({
                         variant="ghost"
                         size="sm"
                         className="text-green-600 hover:text-green-700"
-                        onClick={() => handleVerifyEmployee(employee, true)}
+                        onClick={() => handleVerifyEmployee(employee)}
                       >
                         <UserCheck className="h-4 w-4" />
                       </Button>
@@ -267,7 +288,7 @@ const EmployeeTable = ({
                         variant="ghost"
                         size="sm"
                         className="text-red-600 hover:text-red-700"
-                        onClick={() => handleVerifyEmployee(employee, false)}
+                        onClick={() => handleDeclineEmployee(employee)}
                       >
                         <UserX className="h-4 w-4" />
                       </Button>
@@ -384,8 +405,19 @@ function EmployeeEditForm({
       if (onUpdate) {
         onUpdate(updatedEmployee);
       }
+
+      toast({
+        title: "Success",
+        description: "Employee information updated successfully",
+        variant: "default",
+      });
     } catch (error) {
       console.error("Failed to update employee:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update employee information",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }

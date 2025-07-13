@@ -33,6 +33,7 @@ import verificationService, {
   VerificationRequest,
   VerificationDecision,
 } from "@/services/verificationService";
+import employeeService from "@/services/employeeService";
 
 interface VerificationRequestsProps {
   requests?: VerificationRequest[];
@@ -103,10 +104,7 @@ const VerificationRequests = ({
 
   const handleApproveVerification = async (request: VerificationRequest) => {
     try {
-      await verificationService.approveVerification({
-        employeeEmail: request.employeeEmail,
-        approved: true,
-      });
+      await employeeService.verifyEmployee(request.employeeEmail);
 
       const updatedRequests = requests.map((req) =>
         req.id === request.id
@@ -129,10 +127,7 @@ const VerificationRequests = ({
 
   const handleRejectVerification = async (request: VerificationRequest) => {
     try {
-      await verificationService.approveVerification({
-        employeeEmail: request.employeeEmail,
-        approved: false,
-      });
+      await employeeService.declineEmployee(request.employeeEmail);
 
       const updatedRequests = requests.map((req) =>
         req.id === request.id
