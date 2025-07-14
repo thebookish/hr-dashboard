@@ -72,9 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ) {
         clearAuthData();
         setUser(null);
-        throw new Error(
-          "Access denied. Only admin and admin-head users can access this system.",
-        );
+        throw new Error("Access denied. Only HR can access this system.");
       }
 
       setUser(response.user);
