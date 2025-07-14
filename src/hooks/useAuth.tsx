@@ -64,6 +64,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       const response = await authService.login({ email, password });
+
+      // Check if user has admin or admin-head role
+      if (
+        response.user.role !== "admin" &&
+        response.user.role !== "admin-head"
+      ) {
+        clearAuthData();
+        setUser(null);
+        throw new Error(
+          "Access denied. Only admin and admin-head users can access this system.",
+        );
+      }
+
       setUser(response.user);
     } catch (error) {
       console.error("Login error:", error);
