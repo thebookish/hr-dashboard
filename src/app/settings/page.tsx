@@ -596,83 +596,21 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
-          {/* System Settings */}
-          <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-gray-900 dark:text-gray-100">
-                System Preferences
-              </CardTitle>
-            </CardHeader>
-            //{" "}
-            <CardContent className="space-y-4">
-              //{" "}
-              <div className="flex items-center justify-between">
-                //{" "}
-                <div className="space-y-0.5">
-                  //{" "}
-                  <Label className="text-gray-900 dark:text-gray-100">
-                    // Email Notifications //{" "}
-                  </Label>
-                  //{" "}
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    // Receive email notifications for important updates //{" "}
-                  </p>
-                  //{" "}
-                </div>
-                // <Switch defaultChecked />
-                //{" "}
-              </div>
-              // <Separator />
-              //{" "}
-              <div className="flex items-center justify-between">
-                //{" "}
-                <div className="space-y-0.5">
-                  //{" "}
-                  <Label className="text-gray-900 dark:text-gray-100">
-                    // Desktop Notifications //{" "}
-                  </Label>
-                  //{" "}
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    // Show desktop notifications for new activities //{" "}
-                  </p>
-                  //{" "}
-                </div>
-                // <Switch defaultChecked />
-                //{" "}
-              </div>
-              //{" "}
-            </CardContent>
-          </Card>
-          {/* Admin Account Registration */}
-          <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-gray-900 dark:text-gray-100">
-                Admin Account Management (Selected Access)
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <RegisterAssistantForm />
-            </CardContent>
-          </Card>
-          // {/* HR Account Registration */}
-          //{" "}
-          <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-            //{" "}
-            <CardHeader>
-              //{" "}
-              <CardTitle className="text-gray-900 dark:text-gray-100">
-                // HR Account Management //{" "}
-              </CardTitle>
-              //{" "}
-            </CardHeader>
-            //{" "}
-            <CardContent className="space-y-4">
-              // <RegisterHRForm />
-              //{" "}
-            </CardContent>
-            //{" "}
-          </Card>
-          {/* Actions */}
+
+          {/* Admin Account Registration - Only for admin-head */}
+          {user?.role === "admin-head" && (
+            <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-gray-900 dark:text-gray-100">
+                  Admin Account Management (Selected Access)
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <RegisterAssistantForm />
+              </CardContent>
+            </Card>
+          )}
+
           <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
             <CardHeader>
               <CardTitle className="text-gray-900 dark:text-gray-100">

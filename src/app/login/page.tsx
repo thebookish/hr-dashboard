@@ -20,7 +20,7 @@ import { useToast } from "@/components/ui/use-toast";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { login, isAuthenticated, isLoading: authLoading, user } = useAuth();
   const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -82,7 +82,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-blue-900 p-4">
       <Card className="w-full max-w-md shadow-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-        <CardHeader className="space-y-1">
+        <CardHeader className="space-y-1 border-b-0 pb-0">
           <div className="flex justify-center mb-6">
             <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900/50">
               <Icons.logo className="h-12 w-12 text-blue-600 dark:text-blue-400" />
@@ -91,7 +91,7 @@ export default function LoginPage() {
           <CardTitle className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100">
             HR Management System
           </CardTitle>
-          <CardDescription className="text-center text-gray-600 dark:text-gray-400">
+          <CardDescription className="text-center text-gray-600 dark:text-gray-400 mb-6">
             Enter your credentials to access your account
           </CardDescription>
         </CardHeader>
@@ -112,6 +112,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  className="border-0 shadow-none"
                 />
               </div>
               <div className="grid gap-2">
@@ -147,8 +148,8 @@ export default function LoginPage() {
             </div>
           </form>
         </CardContent>
-        <CardFooter className="flex flex-col">
-          <div className="text-center text-sm text-gray-600 dark:text-gray-400 mt-2">
+        <CardFooter>
+          <div className="text-center text-sm text-gray-600 dark:text-gray-400 w-full">
             Don&apos;t have an account? Contact your administrator.
           </div>
         </CardFooter>
