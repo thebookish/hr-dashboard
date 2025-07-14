@@ -1090,9 +1090,13 @@ function SalaryManagement({
         <PaymentHistoryCard
           paymentHistory={salaryData.paymentHistory}
           onUpdate={(updatedHistory) => {
-            setSalaryData((prev) =>
-              prev ? { ...prev, paymentHistory: updatedHistory } : null,
-            );
+            // Update the salary data with new payment history
+            const updatedSalaryData = salaryData
+              ? { ...salaryData, paymentHistory: updatedHistory }
+              : null;
+            if (updatedSalaryData) {
+              onUpdate(updatedSalaryData);
+            }
           }}
         />
       )}

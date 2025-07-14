@@ -570,7 +570,6 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
-
           {/* Theme Settings */}
           <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
             <CardHeader>
@@ -597,7 +596,6 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
-
           {/* System Settings */}
           <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
             <CardHeader>
@@ -605,33 +603,46 @@ export default function SettingsPage() {
                 System Preferences
               </CardTitle>
             </CardHeader>
+            //{" "}
             <CardContent className="space-y-4">
+              //{" "}
               <div className="flex items-center justify-between">
+                //{" "}
                 <div className="space-y-0.5">
+                  //{" "}
                   <Label className="text-gray-900 dark:text-gray-100">
-                    Email Notifications
+                    // Email Notifications //{" "}
                   </Label>
+                  //{" "}
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Receive email notifications for important updates
+                    // Receive email notifications for important updates //{" "}
                   </p>
+                  //{" "}
                 </div>
-                <Switch defaultChecked />
+                // <Switch defaultChecked />
+                //{" "}
               </div>
-              <Separator />
+              // <Separator />
+              //{" "}
               <div className="flex items-center justify-between">
+                //{" "}
                 <div className="space-y-0.5">
+                  //{" "}
                   <Label className="text-gray-900 dark:text-gray-100">
-                    Desktop Notifications
+                    // Desktop Notifications //{" "}
                   </Label>
+                  //{" "}
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Show desktop notifications for new activities
+                    // Show desktop notifications for new activities //{" "}
                   </p>
+                  //{" "}
                 </div>
-                <Switch defaultChecked />
+                // <Switch defaultChecked />
+                //{" "}
               </div>
+              //{" "}
             </CardContent>
           </Card>
-
           {/* Admin Account Registration */}
           <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
             <CardHeader>
@@ -643,19 +654,24 @@ export default function SettingsPage() {
               <RegisterAssistantForm />
             </CardContent>
           </Card>
-
-          {/* HR Account Registration */}
+          // {/* HR Account Registration */}
+          //{" "}
           <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+            //{" "}
             <CardHeader>
+              //{" "}
               <CardTitle className="text-gray-900 dark:text-gray-100">
-                HR Account Management
+                // HR Account Management //{" "}
               </CardTitle>
+              //{" "}
             </CardHeader>
+            //{" "}
             <CardContent className="space-y-4">
-              <RegisterHRForm />
+              // <RegisterHRForm />
+              //{" "}
             </CardContent>
+            //{" "}
           </Card>
-
           {/* Actions */}
           <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
             <CardHeader>
@@ -665,13 +681,6 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <ChangePasswordForm />
-              <Button variant="outline" className="w-full">
-                Export Data
-              </Button>
-              <Separator />
-              <Button variant="destructive" className="w-full">
-                Delete Account
-              </Button>
             </CardContent>
           </Card>
         </div>
