@@ -18,6 +18,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
+  updateUserProfile: (updatedData: Partial<UserModel>) => void;
   hasPermission: (permission: keyof UserModel["permissions"]) => boolean;
 }
 
@@ -28,6 +29,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserModel | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Track when component is mounted to prevent hydration issues
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Initialize authentication state
   useEffect(() => {
@@ -51,12 +58,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    // Only run in browser
-    if (typeof window !== "undefined") {
+    // Add a small delay to ensure client-side hydration is complete
+    const timer = setTimeout(() => {
       initializeAuth();
-    } else {
-      setIsLoading(false);
-    }
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, []);
 
   // Login function
@@ -111,6 +118,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Update user profile
+  const updateUserProfile = (updatedData: Partial<UserModel>): void => {
+    if (user) {
+      const updatedUser = { ...user, ...updatedData };
+      setUser(updatedUser);
+      // Update in localStorage as well
+      import("@/utils/storage").then(({ setUser: setStorageUser }) => {
+        setStorageUser(updatedUser);
+      });
+    }
+  };
+
   // Check if user has specific permission
   const hasPermission = (
     permission: keyof UserModel["permissions"],
@@ -125,11 +144,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Context value
   const contextValue: AuthContextType = {
     user,
-    isLoading,
-    isAuthenticated: !!user && !!user.email && !isLoading,
+    isLoading: isLoading || !isMounted,
+    isAuthenticated: !!user && !!user.email && !isLoading && isMounted,
     login,
     logout,
     refreshUser,
+    updateUserProfile,
     hasPermission,
   };
 

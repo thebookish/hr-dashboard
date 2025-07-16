@@ -42,16 +42,71 @@ const RecentActivity = ({
   };
 
   const formatTime = (timestamp: string) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
+    if (!timestamp) return "Unknown time";
 
-    if (diffMins < 60) return `${diffMins} minutes ago`;
-    if (diffHours < 24) return `${diffHours} hours ago`;
-    return `${diffDays} days ago`;
+    try {
+      const date = new Date(timestamp);
+
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return "Invalid date";
+      }
+
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMins / 60);
+      const diffDays = Math.floor(diffHours / 24);
+      const diffWeeks = Math.floor(diffDays / 7);
+      const diffMonths = Math.floor(diffDays / 30);
+
+      // Handle future dates
+      if (diffMs < 0) {
+        return (
+          date.toLocaleDateString() +
+          " " +
+          date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+        );
+      }
+
+      // Less than 1 minute
+      if (diffMins < 1) return "Just now";
+
+      // Less than 1 hour
+      if (diffMins < 60) {
+        return diffMins === 1 ? "1 minute ago" : `${diffMins} minutes ago`;
+      }
+
+      // Less than 24 hours
+      if (diffHours < 24) {
+        return diffHours === 1 ? "1 hour ago" : `${diffHours} hours ago`;
+      }
+
+      // Less than 7 days
+      if (diffDays < 7) {
+        return diffDays === 1 ? "1 day ago" : `${diffDays} days ago`;
+      }
+
+      // Less than 30 days
+      if (diffDays < 30) {
+        return diffWeeks === 1 ? "1 week ago" : `${diffWeeks} weeks ago`;
+      }
+
+      // More than 30 days
+      if (diffDays < 365) {
+        return diffMonths === 1 ? "1 month ago" : `${diffMonths} months ago`;
+      }
+
+      // More than a year - show actual date
+      return (
+        date.toLocaleDateString() +
+        " " +
+        date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      );
+    } catch (error) {
+      console.error("Error formatting time:", error);
+      return "Invalid time";
+    }
   };
 
   const filterActivities = (type: string) => {

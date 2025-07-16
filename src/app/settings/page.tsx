@@ -10,9 +10,9 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "next-themes";
 import { Switch } from "@/components/ui/switch";
-import { UserPlus, Lock, Users, ShieldX } from "lucide-react";
+import { UserPlus, Lock, Users, ShieldX, Eye, EyeOff } from "lucide-react";
 import authService from "@/services/authService";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -21,9 +21,108 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
+// Profile Name Form Component
+function ProfileNameForm() {
+  const { user, refreshUser } = useAuth();
+  const { toast } = useToast();
+  const [name, setName] = useState(user?.name || "");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Name cannot be empty",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await authService.updateProfile({
+        name: name.trim(),
+      });
+
+      toast({
+        title: "Profile Updated",
+        description: "Your name has been successfully updated",
+      });
+
+      // Refresh user data
+      await refreshUser();
+      setIsEditing(false);
+    } catch (error: any) {
+      toast({
+        title: "Update Failed",
+        description: error.message || "Failed to update profile",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setName(user?.name || "");
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="grid gap-2">
+      <Label htmlFor="name">Full Name</Label>
+      {isEditing ? (
+        <form onSubmit={handleSubmit} className="flex gap-2">
+          <Input
+            id="name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Enter your full name"
+            className="flex-1"
+            required
+          />
+          <Button type="submit" disabled={isLoading} size="sm">
+            {isLoading ? "Saving..." : "Save"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleCancel}
+            size="sm"
+          >
+            Cancel
+          </Button>
+        </form>
+      ) : (
+        <div className="flex gap-2">
+          <Input
+            id="name"
+            type="text"
+            value={user?.name || ""}
+            disabled
+            className="flex-1"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setIsEditing(true)}
+            size="sm"
+          >
+            Edit
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Change Password Form Component
 function ChangePasswordForm() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     oldPassword: "",
     newPassword: "",
@@ -31,6 +130,11 @@ function ChangePasswordForm() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [showPasswords, setShowPasswords] = useState({
+    oldPassword: false,
+    newPassword: false,
+    confirmPassword: false,
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +180,6 @@ function ChangePasswordForm() {
       toast({
         title: "Password Changed",
         description: "Your password has been successfully updated",
-        variant: "default",
       });
 
       // Reset form and close dialog
@@ -110,53 +213,116 @@ function ChangePasswordForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-2">
             <Label htmlFor="old-password">Current Password</Label>
-            <Input
-              id="old-password"
-              type="password"
-              placeholder="Enter current password"
-              value={formData.oldPassword}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  oldPassword: e.target.value,
-                }))
-              }
-              required
-            />
+            <div className="relative">
+              <Input
+                id="old-password"
+                type={showPasswords.oldPassword ? "text" : "password"}
+                placeholder="Enter current password"
+                value={formData.oldPassword}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    oldPassword: e.target.value,
+                  }))
+                }
+                required
+                className="pr-10"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                onClick={() =>
+                  setShowPasswords((prev) => ({
+                    ...prev,
+                    oldPassword: !prev.oldPassword,
+                  }))
+                }
+              >
+                {showPasswords.oldPassword ? (
+                  <EyeOff className="h-4 w-4 text-gray-500" />
+                ) : (
+                  <Eye className="h-4 w-4 text-gray-500" />
+                )}
+              </Button>
+            </div>
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="new-password">New Password</Label>
-            <Input
-              id="new-password"
-              type="password"
-              placeholder="Enter new password"
-              value={formData.newPassword}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  newPassword: e.target.value,
-                }))
-              }
-              required
-            />
+            <div className="relative">
+              <Input
+                id="new-password"
+                type={showPasswords.newPassword ? "text" : "password"}
+                placeholder="Enter new password"
+                value={formData.newPassword}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    newPassword: e.target.value,
+                  }))
+                }
+                required
+                className="pr-10"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                onClick={() =>
+                  setShowPasswords((prev) => ({
+                    ...prev,
+                    newPassword: !prev.newPassword,
+                  }))
+                }
+              >
+                {showPasswords.newPassword ? (
+                  <EyeOff className="h-4 w-4 text-gray-500" />
+                ) : (
+                  <Eye className="h-4 w-4 text-gray-500" />
+                )}
+              </Button>
+            </div>
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="confirm-password">Confirm New Password</Label>
-            <Input
-              id="confirm-password"
-              type="password"
-              placeholder="Confirm new password"
-              value={formData.confirmPassword}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  confirmPassword: e.target.value,
-                }))
-              }
-              required
-            />
+            <div className="relative">
+              <Input
+                id="confirm-password"
+                type={showPasswords.confirmPassword ? "text" : "password"}
+                placeholder="Confirm new password"
+                value={formData.confirmPassword}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    confirmPassword: e.target.value,
+                  }))
+                }
+                required
+                className="pr-10"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                onClick={() =>
+                  setShowPasswords((prev) => ({
+                    ...prev,
+                    confirmPassword: !prev.confirmPassword,
+                  }))
+                }
+              >
+                {showPasswords.confirmPassword ? (
+                  <EyeOff className="h-4 w-4 text-gray-500" />
+                ) : (
+                  <Eye className="h-4 w-4 text-gray-500" />
+                )}
+              </Button>
+            </div>
           </div>
 
           <div className="flex gap-2 pt-4">
@@ -180,10 +346,13 @@ function ChangePasswordForm() {
 
 // Assistant Registration Form Component
 function RegisterAssistantForm() {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
+    confirmPassword: "",
+    otp: "",
     permissions: {
       dashboard: true,
       employees: false,
@@ -193,6 +362,12 @@ function RegisterAssistantForm() {
     },
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [showPasswords, setShowPasswords] = useState({
+    password: false,
+    confirmPassword: false,
+  });
 
   const handlePermissionChange = (permission: string, checked: boolean) => {
     setFormData((prev) => ({
@@ -204,9 +379,43 @@ function RegisterAssistantForm() {
     }));
   };
 
+  const handleSendOTP = async () => {
+    if (!formData.email) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter email address first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setOtpLoading(true);
+    try {
+      await authService.sendOTP(formData.email);
+      setOtpSent(true);
+      toast({
+        title: "OTP Sent",
+        description: "Verification code has been sent to your email",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Failed to Send OTP",
+        description: error.message || "Failed to send verification code",
+        variant: "destructive",
+      });
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.password) {
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
       toast({
         title: "Validation Error",
         description: "Please fill in all fields",
@@ -215,20 +424,47 @@ function RegisterAssistantForm() {
       return;
     }
 
+    if (formData.password !== formData.confirmPassword) {
+      toast({
+        title: "Validation Error",
+        description: "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      toast({
+        title: "Validation Error",
+        description: "Password must be at least 6 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!otpSent || !formData.otp) {
+      toast({
+        title: "Validation Error",
+        description: "Please verify your email with OTP first",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      await authService.register({
+      await authService.registerWithOTP({
         name: formData.name,
         email: formData.email,
         password: formData.password,
         role: "admin",
         permissions: formData.permissions,
+        otp: formData.otp,
       });
 
       toast({
         title: "Admin Account Created",
         description: `New admin account with selected permissions created for ${formData.email}`,
-        variant: "default",
       });
 
       // Reset form
@@ -236,6 +472,8 @@ function RegisterAssistantForm() {
         name: "",
         email: "",
         password: "",
+        confirmPassword: "",
+        otp: "",
         permissions: {
           dashboard: true,
           employees: false,
@@ -244,6 +482,7 @@ function RegisterAssistantForm() {
           settings: false,
         },
       });
+      setOtpSent(false);
     } catch (error: any) {
       toast({
         title: "Registration Failed",
@@ -281,30 +520,117 @@ function RegisterAssistantForm() {
 
         <div className="grid gap-2">
           <Label htmlFor="assistant-email">Email Address</Label>
-          <Input
-            id="assistant-email"
-            type="email"
-            placeholder="Enter email address"
-            value={formData.email}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, email: e.target.value }))
-            }
-            required
-          />
+          <div className="flex gap-2">
+            <Input
+              id="assistant-email"
+              type="email"
+              placeholder="Enter email address"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, email: e.target.value }))
+              }
+              required
+              className="flex-1"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleSendOTP}
+              disabled={otpLoading || !formData.email || otpSent}
+            >
+              {otpLoading ? "Sending..." : otpSent ? "OTP Sent" : "Send OTP"}
+            </Button>
+          </div>
         </div>
+
+        {otpSent && (
+          <div className="grid gap-2">
+            <Label htmlFor="assistant-otp">Verification Code (OTP)</Label>
+            <Input
+              id="assistant-otp"
+              type="text"
+              placeholder="Enter 6-digit verification code"
+              value={formData.otp}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, otp: e.target.value }))
+              }
+              required
+              maxLength={6}
+            />
+          </div>
+        )}
 
         <div className="grid gap-2">
           <Label htmlFor="assistant-password">Password</Label>
-          <Input
-            id="assistant-password"
-            type="password"
-            placeholder="Enter password"
-            value={formData.password}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, password: e.target.value }))
-            }
-            required
-          />
+          <div className="relative">
+            <Input
+              id="assistant-password"
+              type={showPasswords.password ? "text" : "password"}
+              placeholder="Enter password (min 6 characters)"
+              value={formData.password}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, password: e.target.value }))
+              }
+              required
+              className="pr-10"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+              onClick={() =>
+                setShowPasswords((prev) => ({
+                  ...prev,
+                  password: !prev.password,
+                }))
+              }
+            >
+              {showPasswords.password ? (
+                <EyeOff className="h-4 w-4 text-gray-500" />
+              ) : (
+                <Eye className="h-4 w-4 text-gray-500" />
+              )}
+            </Button>
+          </div>
+        </div>
+
+        <div className="grid gap-2">
+          <Label htmlFor="assistant-confirm-password">Confirm Password</Label>
+          <div className="relative">
+            <Input
+              id="assistant-confirm-password"
+              type={showPasswords.confirmPassword ? "text" : "password"}
+              placeholder="Confirm password"
+              value={formData.confirmPassword}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  confirmPassword: e.target.value,
+                }))
+              }
+              required
+              className="pr-10"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+              onClick={() =>
+                setShowPasswords((prev) => ({
+                  ...prev,
+                  confirmPassword: !prev.confirmPassword,
+                }))
+              }
+            >
+              {showPasswords.confirmPassword ? (
+                <EyeOff className="h-4 w-4 text-gray-500" />
+              ) : (
+                <Eye className="h-4 w-4 text-gray-500" />
+              )}
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-4">
@@ -403,6 +729,7 @@ function RegisterAssistantForm() {
 
 // HR Registration Form Component
 function RegisterHRForm() {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -431,7 +758,6 @@ function RegisterHRForm() {
       toast({
         title: "HR Account Created",
         description: `New HR account created for ${formData.email}`,
-        variant: "default",
       });
 
       // Reset form
@@ -555,6 +881,7 @@ export default function SettingsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <ProfileNameForm />
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input

@@ -104,7 +104,9 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="mt-4">
+                  Email
+                </Label>
                 <Input
                   id="email"
                   type="email"

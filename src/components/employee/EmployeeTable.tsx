@@ -6,7 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
-import { Search, UserCheck, UserX, Edit, Eye, User } from "lucide-react";
+import {
+  Search,
+  UserCheck,
+  UserX,
+  Edit,
+  Eye,
+  User,
+  Download,
+  FileText,
+  ExternalLink,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +40,7 @@ import employeeService, {
   EmployeeModelNew,
   ChildInfo,
 } from "@/services/employeeService";
+import verificationService from "@/services/verificationService";
 
 interface EmployeeTableProps {
   employees?: Employee[];
@@ -244,14 +255,6 @@ const EmployeeTable = ({
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-                    onClick={() => onEmployeeSelect?.(employee)}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button
@@ -460,6 +463,65 @@ function EmployeeEditForm({
           i === index ? { ...child, [field]: value } : child,
         ) || [],
     }));
+  };
+
+  const getDocumentUrl = (filePath?: string): string | undefined => {
+    if (!filePath) return undefined;
+    const BASE_URL =
+      "https://hrms-hgdtc3e2chcbb8h0.southeastasia-01.azurewebsites.net";
+    // If the filePath already contains the full URL, return as is
+    if (filePath.startsWith("http")) return filePath;
+    // Otherwise, prepend the base URL
+    return `${BASE_URL}${filePath.startsWith("/") ? "" : "/"}${filePath}`;
+  };
+
+  const handleViewDocument = async (documentUrl: string) => {
+    try {
+      // Open document in new tab
+      window.open(documentUrl, "_blank");
+
+      toast({
+        title: "Document Opened",
+        description: "Document opened in new tab",
+        variant: "default",
+      });
+    } catch (error) {
+      console.error("Failed to view document:", error);
+      toast({
+        title: "View Failed",
+        description: "Failed to open the document",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownloadDocument = async (
+    documentUrl: string,
+    fileName: string,
+  ) => {
+    try {
+      // Create download link
+      const link = document.createElement("a");
+      link.href = documentUrl;
+      link.download = fileName;
+      link.target = "_blank";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast({
+        title: "Download Started",
+        description: `Downloading ${fileName}...`,
+        variant: "default",
+      });
+    } catch (error) {
+      console.error("Failed to download document:", error);
+      toast({
+        title: "Download Failed",
+        description: "Failed to download the document",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -775,7 +837,7 @@ function EmployeeEditForm({
           </div>
         </TabsContent>
 
-        <TabsContent value="documents" className="space-y-4">
+        <TabsContent value="documents" className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="passportNo">Passport Number</Label>
@@ -857,6 +919,114 @@ function EmployeeEditForm({
                 value={formData.visaExpiry || ""}
                 onChange={(e) => updateFormData("visaExpiry", e.target.value)}
               />
+            </div>
+          </div>
+
+          <div className="border-t pt-6">
+            <h4 className="font-semibold text-lg mb-4 flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Uploaded Documents
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                {
+                  key: "passport",
+                  label: "Passport",
+                  value: formData.passport
+                    ? getDocumentUrl(formData.passport)
+                    : undefined,
+                },
+                {
+                  key: "eid",
+                  label: "Emirates ID",
+                  value: formData.eid
+                    ? getDocumentUrl(formData.eid)
+                    : undefined,
+                },
+                {
+                  key: "visa",
+                  label: "Visa",
+                  value: formData.visa
+                    ? getDocumentUrl(formData.visa)
+                    : undefined,
+                },
+                {
+                  key: "cv",
+                  label: "CV/Resume",
+                  value: formData.cv ? getDocumentUrl(formData.cv) : undefined,
+                },
+                {
+                  key: "cert",
+                  label: "Certificates",
+                  value: formData.cert
+                    ? getDocumentUrl(formData.cert)
+                    : undefined,
+                },
+                {
+                  key: "ref",
+                  label: "References",
+                  value: formData.ref
+                    ? getDocumentUrl(formData.ref)
+                    : undefined,
+                },
+                {
+                  key: "photo",
+                  label: "Photo",
+                  value: formData.photo
+                    ? getDocumentUrl(formData.photo)
+                    : undefined,
+                },
+              ].map((doc) => (
+                <div
+                  key={doc.key}
+                  className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                      <span className="font-medium text-sm">{doc.label}</span>
+                    </div>
+                    {doc.value ? (
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewDocument(doc.value!)}
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            handleDownloadDocument(
+                              doc.value!,
+                              `${doc.label}_${employee.name}`,
+                            )
+                          }
+                          className="text-green-600 hover:text-green-700"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        Not uploaded
+                      </span>
+                    )}
+                  </div>
+                  {doc.value && (
+                    <div className="mt-2">
+                      <span className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded">
+                        Available
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </TabsContent>

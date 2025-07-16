@@ -1,4 +1,6 @@
 import axiosInstance from "@/utils/axiosInstance";
+import notificationService from "./notificationService";
+import { getUser } from "@/utils/storage";
 
 export interface SalaryModel {
   email: string;
@@ -58,7 +60,7 @@ class SalaryService {
       );
       // Ensure the response matches the SalaryModel structure
       const salaryData = response.data;
-      return {
+      const result = {
         email: salaryData.email || data.email,
         basic: salaryData.basic || data.basic,
         hra: salaryData.hra || data.hra || 0,
@@ -67,6 +69,28 @@ class SalaryService {
         paymentHistory: salaryData.paymentHistory || [],
         upcomingIncrements: salaryData.upcomingIncrements || [],
       };
+
+      // Send notification to employee about salary info addition
+      try {
+        const currentUser = getUser();
+        const adminName = currentUser?.name || "HR Admin";
+        const totalSalary =
+          result.basic + result.hra + result.allowance - result.deduction;
+
+        await notificationService.sendNotification({
+          title: "Salary Information Added",
+          message: `Your salary information has been added to the system by ${adminName}. Total monthly salary: ${totalSalary.toLocaleString()}`,
+          email: data.email,
+          type: "success",
+        });
+      } catch (notifError) {
+        console.error(
+          "Failed to send salary addition notification:",
+          notifError,
+        );
+      }
+
+      return result;
     } catch (error: any) {
       console.error("Failed to add salary info:", error);
       throw new Error(
@@ -86,7 +110,7 @@ class SalaryService {
       );
       // Ensure the response matches the SalaryModel structure
       const salaryData = response.data;
-      return {
+      const result = {
         email: salaryData.email || email,
         basic: salaryData.basic || data.basic || 0,
         hra: salaryData.hra || data.hra || 0,
@@ -95,6 +119,25 @@ class SalaryService {
         paymentHistory: salaryData.paymentHistory || [],
         upcomingIncrements: salaryData.upcomingIncrements || [],
       };
+
+      // Send notification to employee about salary info update
+      try {
+        const currentUser = getUser();
+        const adminName = currentUser?.name || "HR Admin";
+        const totalSalary =
+          result.basic + result.hra + result.allowance - result.deduction;
+
+        await notificationService.sendNotification({
+          title: "Salary Information Updated",
+          message: `Your salary information has been updated by ${adminName}. New total monthly salary: ${totalSalary.toLocaleString()}`,
+          email: email,
+          type: "info",
+        });
+      } catch (notifError) {
+        console.error("Failed to send salary update notification:", notifError);
+      }
+
+      return result;
     } catch (error: any) {
       console.error("Failed to update salary info:", error);
       throw new Error(

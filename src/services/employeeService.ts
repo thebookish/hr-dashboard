@@ -1,4 +1,6 @@
 import axiosInstance from "@/utils/axiosInstance";
+import notificationService from "./notificationService";
+import { getUser } from "@/utils/storage";
 
 export interface ChildInfo {
   name: string;
@@ -205,9 +207,28 @@ class EmployeeService {
   ): Promise<EmployeeModelNew> {
     try {
       const response = await axiosInstance.put(
-        `/employees/${encodeURIComponent(email)}`,
+        `/employees/edit/?email=${encodeURIComponent(email)}`,
         data,
       );
+
+      // Send notification to employee about profile update
+      try {
+        const currentUser = getUser();
+        const adminName = currentUser?.name || "HR Admin";
+
+        await notificationService.sendNotification({
+          title: "Profile Updated",
+          message: `Your employee profile has been updated by ${adminName}. Please review your information to ensure accuracy.`,
+          email: email,
+          type: "info",
+        });
+      } catch (notifError) {
+        console.error(
+          "Failed to send profile update notification:",
+          notifError,
+        );
+      }
+
       return response.data;
     } catch (error: any) {
       console.error("Failed to update employee:", error);
@@ -222,6 +243,25 @@ class EmployeeService {
       const response = await axiosInstance.put(
         `/employees/verify/?email=${encodeURIComponent(email)}`,
       );
+
+      // Send notification to employee
+      try {
+        const currentUser = getUser();
+        const adminName = currentUser?.name || "HR Admin";
+
+        await notificationService.sendNotification({
+          title: "Employee Verification Approved",
+          message: `Congratulations! Your employee verification has been approved by ${adminName}. You now have full access to the system.`,
+          email: email,
+          type: "success",
+        });
+      } catch (notifError) {
+        console.error(
+          "Failed to send verification approval notification:",
+          notifError,
+        );
+      }
+
       return response.data;
     } catch (error: any) {
       console.error("Failed to verify employee:", error);
@@ -236,6 +276,25 @@ class EmployeeService {
       const response = await axiosInstance.put(
         `/employees/decline/?email=${encodeURIComponent(email)}`,
       );
+
+      // Send notification to employee
+      try {
+        const currentUser = getUser();
+        const adminName = currentUser?.name || "HR Admin";
+
+        await notificationService.sendNotification({
+          title: "Employee Verification Declined",
+          message: `Your employee verification has been declined by ${adminName}. Please contact HR for more information or to resubmit your documents.`,
+          email: email,
+          type: "warning",
+        });
+      } catch (notifError) {
+        console.error(
+          "Failed to send verification decline notification:",
+          notifError,
+        );
+      }
+
       return response.data;
     } catch (error: any) {
       console.error("Failed to decline employee:", error);

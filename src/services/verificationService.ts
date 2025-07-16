@@ -1,5 +1,7 @@
 import axiosInstance from "@/utils/axiosInstance";
 import { toast } from "@/components/ui/use-toast";
+import notificationService from "./notificationService";
+import { getUser } from "@/utils/storage";
 
 export interface VerificationRequest {
   id: string;
@@ -225,9 +227,26 @@ class VerificationService {
       toast({
         title: "Verification Updated",
         description: "Employee verification approved successfully",
-
         variant: "default",
       });
+
+      // Send notification to employee
+      try {
+        const currentUser = getUser();
+        const adminName = currentUser?.name || "HR Admin";
+
+        await notificationService.sendNotification({
+          title: "Document Verification Approved",
+          message: `Excellent! Your document verification has been approved by ${adminName}. Your employee profile is now fully verified and active.`,
+          email: decision.employeeEmail,
+          type: "success",
+        });
+      } catch (notifError) {
+        console.error(
+          "Failed to send verification approval notification:",
+          notifError,
+        );
+      }
 
       return response.data;
     } catch (error: any) {
@@ -255,6 +274,25 @@ class VerificationService {
       toast({
         title: "Verification Rejected",
       });
+
+      // Send notification to employee
+      try {
+        const currentUser = getUser();
+        const adminName = currentUser?.name || "HR Admin";
+        const reason = decision.reason ? ` Reason: ${decision.reason}` : "";
+
+        await notificationService.sendNotification({
+          title: "Document Verification Rejected",
+          message: `Your document verification has been rejected by ${adminName}.${reason} Please contact HR for guidance on resubmitting your documents.`,
+          email: decision.employeeEmail,
+          type: "warning",
+        });
+      } catch (notifError) {
+        console.error(
+          "Failed to send verification rejection notification:",
+          notifError,
+        );
+      }
 
       return response.data;
     } catch (error: any) {

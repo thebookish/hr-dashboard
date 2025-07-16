@@ -537,7 +537,7 @@ export default function HRServicesPage() {
         <div className="flex justify-between items-center bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
           <div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent">
-              Dubai Embassy HR Services
+              Embassy Team HR Services
             </h1>
             <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
               Comprehensive management of salaries, family information,
@@ -620,7 +620,7 @@ export default function HRServicesPage() {
                 <div className="p-2 bg-white/20 dark:bg-white/30 rounded-lg">
                   <FileText className="h-5 w-5" />
                 </div>
-                Dubai Embassy Report Summary
+                Report Summary
               </CardTitle>
             </CardHeader>
             <CardContent>

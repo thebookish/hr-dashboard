@@ -33,6 +33,11 @@ export interface ReportData {
   sponsors: SponsorModel[];
   familyMembers: FamilyMember[];
   generatedDate: string;
+  totalActiveEmployees: number;
+  totalPendingLeaves: number;
+  totalApprovedLeaves: number;
+  totalRejectedLeaves: number;
+  totalPendingVerifications: number;
 }
 
 class ReportService {
@@ -44,67 +49,82 @@ class ReportService {
         leaveService.getLeaveRequests(),
       ]);
 
-      // Initialize arrays for additional data
+      // Fetch detailed employee data using the correct endpoint
+      const detailedEmployees: EmployeeModelNew[] = [];
       const salaries: SalaryModel[] = [];
       const tasks: TaskModel[] = [];
       const familyMembers: FamilyMember[] = [];
       const sponsors: SponsorModel[] = [];
 
-      // Fetch additional data for each employee with proper error handling
-      const employeePromises = employees.map(async (employee) => {
-        const employeeData = {
-          salary: null as SalaryModel | null,
-          tasks: [] as TaskModel[],
-          family: [] as FamilyMember[],
-          sponsor: null as SponsorModel | null,
-        };
-
+      // Fetch detailed data for each employee
+      for (const employee of employees) {
         try {
-          employeeData.salary = await salaryService.getSalaryInfo(
+          // Get detailed employee data from the correct endpoint
+          const detailedEmployee = await employeeService.getEmployee(
             employee.email,
           );
-        } catch (error) {
-          console.warn(`Failed to fetch salary for ${employee.email}:`, error);
-        }
+          detailedEmployees.push(detailedEmployee);
 
-        try {
-          employeeData.tasks = await taskService.getUserTasks(employee.email);
-        } catch (error) {
-          console.warn(`Failed to fetch tasks for ${employee.email}:`, error);
-        }
+          // Fetch additional data with error handling
+          try {
+            const salary = await salaryService.getSalaryInfo(employee.email);
+            if (salary) salaries.push(salary);
+          } catch (error) {
+            console.warn(
+              `Failed to fetch salary for ${employee.email}:`,
+              error,
+            );
+          }
 
-        try {
-          employeeData.family = await familyService.getFamilyMembers(
-            employee.email,
+          try {
+            const employeeTasks = await taskService.getUserTasks(
+              employee.email,
+            );
+            if (employeeTasks.length > 0) tasks.push(...employeeTasks);
+          } catch (error) {
+            console.warn(`Failed to fetch tasks for ${employee.email}:`, error);
+          }
+
+          try {
+            const family = await familyService.getFamilyMembers(employee.email);
+            if (family.length > 0) familyMembers.push(...family);
+          } catch (error) {
+            console.warn(
+              `Failed to fetch family for ${employee.email}:`,
+              error,
+            );
+          }
+
+          try {
+            const sponsor = await sponsorService.getSponsor(employee.email);
+            if (sponsor) sponsors.push(sponsor);
+          } catch (error) {
+            console.warn(
+              `Failed to fetch sponsor for ${employee.email}:`,
+              error,
+            );
+          }
+        } catch (error) {
+          console.warn(
+            `Failed to fetch detailed data for ${employee.email}:`,
+            error,
           );
-        } catch (error) {
-          console.warn(`Failed to fetch family for ${employee.email}:`, error);
+          // Fallback to basic employee data
+          detailedEmployees.push({
+            firstName: employee.name.split(" ")[0],
+            surname: employee.name.split(" ").slice(1).join(" "),
+            email: employee.email,
+            mobile: employee.phone,
+            position: employee.position,
+            wing: employee.department,
+            joinDate: employee.joinDate,
+            status: employee.status,
+            sickLeave: employee.sickLeave,
+            casualLeave: employee.casualLeave,
+            paidLeave: employee.paidLeave,
+          });
         }
-
-        try {
-          employeeData.sponsor = await sponsorService.getSponsor(
-            employee.email,
-          );
-        } catch (error) {
-          console.warn(`Failed to fetch sponsor for ${employee.email}:`, error);
-        }
-
-        return employeeData;
-      });
-
-      // Wait for all employee data to be fetched
-      const employeeDataResults = await Promise.allSettled(employeePromises);
-
-      // Process results and aggregate data
-      employeeDataResults.forEach((result) => {
-        if (result.status === "fulfilled") {
-          const data = result.value;
-          if (data.salary) salaries.push(data.salary);
-          if (data.tasks.length > 0) tasks.push(...data.tasks);
-          if (data.family.length > 0) familyMembers.push(...data.family);
-          if (data.sponsor) sponsors.push(data.sponsor);
-        }
-      });
+      }
 
       // Transform LeaveRequest[] to LeaveModel[] to match interface
       const transformedLeaves: LeaveModel[] = leaves.map((leave) => ({
@@ -132,13 +152,28 @@ class ReportService {
       }));
 
       return {
-        employees,
+        employees: detailedEmployees,
         leaves: transformedLeaves,
         salaries,
         tasks,
         sponsors,
         familyMembers,
         generatedDate: new Date().toISOString(),
+        totalActiveEmployees: detailedEmployees.filter(
+          (e) => e.status === "active",
+        ).length,
+        totalPendingLeaves: transformedLeaves.filter(
+          (l) => l.status === "Pending",
+        ).length,
+        totalApprovedLeaves: transformedLeaves.filter(
+          (l) => l.status === "Approved",
+        ).length,
+        totalRejectedLeaves: transformedLeaves.filter(
+          (l) => l.status === "Rejected",
+        ).length,
+        totalPendingVerifications: detailedEmployees.filter(
+          (e) => e.status === "pending",
+        ).length,
       };
     } catch (error: any) {
       console.error("Report generation failed:", error);
@@ -152,124 +187,222 @@ class ReportService {
     try {
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.width;
+      const pageHeight = doc.internal.pageSize.height;
       const margin = 20;
+      const contentWidth = pageWidth - 2 * margin;
 
-      // Header with Dubai Embassy branding
-      doc.setFontSize(24);
+      // Helper function to safely get value or return empty string
+      const getValue = (value: any): string => {
+        if (value === null || value === undefined || value === "") {
+          return "";
+        }
+        return String(value);
+      };
+
+      // Add simple header function
+      const addHeader = (pageNum: number, totalPages: number) => {
+        doc.setFillColor(41, 128, 185);
+        doc.rect(0, 0, pageWidth, 30, "F");
+
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(255, 255, 255);
+        doc.text("HR Report", margin, 20);
+
+        doc.setFontSize(9);
+        doc.text(
+          `Generated: ${new Date(reportData.generatedDate).toLocaleDateString()}`,
+          pageWidth - 80,
+          15,
+        );
+        doc.text(`Page ${pageNum} of ${totalPages}`, pageWidth - 50, 25);
+
+        doc.setTextColor(0, 0, 0);
+      };
+
+      let yPos = 45;
+
+      // Simple Summary
+      doc.setFontSize(14);
       doc.setFont("helvetica", "bold");
-      doc.text("Dubai Embassy HR Report", margin, 25);
-
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "normal");
-      doc.text(
-        `Generated on: ${new Date(reportData.generatedDate).toLocaleString(
-          "en-AE",
-          {
-            timeZone: "Asia/Dubai",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-          },
-        )} (Dubai Time)`,
-        margin,
-        40,
-      );
-
-      // Executive Summary
-      let yPos = 60;
-      doc.setFontSize(18);
-      doc.setFont("helvetica", "bold");
-      doc.text("Executive Summary", margin, yPos);
-      yPos += 15;
-
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "normal");
-      const summaryData = [
-        `Total Employees: ${reportData.employees.length}`,
-        `Active Employees: ${reportData.employees.filter((e) => e.status === "active").length}`,
-        `Pending Verifications: ${reportData.employees.filter((e) => e.status === "pending").length}`,
-        `Total Leave Requests: ${reportData.leaves.length}`,
-        `Pending Leave Requests: ${reportData.leaves.filter((l) => l.status === "Pending").length}`,
-        `Approved Leave Requests: ${reportData.leaves.filter((l) => l.status === "Approved").length}`,
-        `Active Sponsors: ${reportData.sponsors.length}`,
-        `Total Tasks: ${reportData.tasks.length}`,
-        `Family Members Registered: ${reportData.familyMembers.length}`,
-      ];
-
-      summaryData.forEach((item) => {
-        doc.text(`• ${item}`, margin + 5, yPos);
-        yPos += 8;
-      });
-
-      // Employee Details Section
-      yPos += 15;
-      if (yPos > 250) {
-        doc.addPage();
-        yPos = 30;
-      }
-
-      doc.setFontSize(18);
-      doc.setFont("helvetica", "bold");
-      doc.text("Employee Details", margin, yPos);
+      doc.text("Summary", margin, yPos);
       yPos += 15;
 
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
+      const summaryText = [
+        `Total Employees: ${reportData.employees.length}`,
+
+        `Total Leave Requests: ${reportData.leaves.length}`,
+        `Pending Leaves: ${reportData.totalPendingLeaves}`,
+      ];
+
+      summaryText.forEach((text) => {
+        doc.text(text, margin, yPos);
+        yPos += 8;
+      });
+      yPos += 10;
+
+      // Employee Details
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Employee Details", margin, yPos);
+      yPos += 15;
 
       reportData.employees.forEach((employee, index) => {
-        if (yPos > 260) {
+        // Check if we need a new page
+        if (yPos > pageHeight - 80) {
           doc.addPage();
-          yPos = 30;
+          yPos = 45;
         }
 
-        doc.setFont("helvetica", "bold");
+        // Employee name header
         const fullName =
-          `${employee.firstName || ""} ${employee.surname || ""}`.trim() ||
-          "Unknown";
+          getValue(
+            `${employee.firstName || ""} ${employee.surname || ""}`,
+          ).trim() || "Unknown Employee";
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
         doc.text(`${index + 1}. ${fullName}`, margin, yPos);
-        yPos += 6;
+        yPos += 10;
 
+        // Basic information in simple format
+        doc.setFontSize(9);
         doc.setFont("helvetica", "normal");
-        doc.text(`Email: ${employee.email}`, margin + 10, yPos);
+
+        const basicInfo = [
+          `Email: ${getValue(employee.email)}`,
+          `Position: ${getValue(employee.position)}`,
+          `Department: ${getValue(employee.wing)}`,
+          `Join Date: ${getValue(employee.joinDate)}`,
+          `Status: ${getValue(employee.status)}`,
+        ].filter((info) => !info.endsWith(": "));
+
+        basicInfo.forEach((info) => {
+          doc.text(info, margin + 5, yPos);
+          yPos += 6;
+        });
+
+        // Contact information (only if available)
+        const contactInfo = [
+          getValue(employee.mobile) && `Mobile: ${employee.mobile}`,
+          getValue(employee.whatsapp) && `WhatsApp: ${employee.whatsapp}`,
+          getValue(employee.presentAddress) &&
+            `Address: ${employee.presentAddress}`,
+        ].filter(Boolean);
+
+        if (contactInfo.length > 0) {
+          contactInfo.forEach((info) => {
+            doc.text(info, margin + 5, yPos);
+            yPos += 6;
+          });
+        }
+
+        // Document information (only if available)
+        const docInfo = [
+          getValue(employee.passportNo) && `Passport: ${employee.passportNo}`,
+          getValue(employee.emirateIdNo) &&
+            `Emirates ID: ${employee.emirateIdNo}`,
+          getValue(employee.visaNo) && `Visa: ${employee.visaNo}`,
+        ].filter(Boolean);
+
+        if (docInfo.length > 0) {
+          docInfo.forEach((info) => {
+            doc.text(info, margin + 5, yPos);
+            yPos += 6;
+          });
+        }
+
+        // Leave balance
+        const leaveInfo = [
+          `Casual Leave: ${employee.casualLeave || 0} days`,
+          `Annual Leave: ${employee.paidLeave || 0} days`,
+        ];
+
+        leaveInfo.forEach((info) => {
+          doc.text(info, margin + 5, yPos);
+          yPos += 6;
+        });
+
+        // Emergency contact (only if available)
+        if (
+          getValue(employee.emergencyName) ||
+          getValue(employee.emergencyPhone)
+        ) {
+          yPos += 3;
+          doc.setFont("helvetica", "bold");
+          doc.text("Emergency Contact:", margin + 5, yPos);
+          yPos += 6;
+          doc.setFont("helvetica", "normal");
+
+          const emergencyInfo = [
+            getValue(employee.emergencyName) &&
+              `Name: ${employee.emergencyName}`,
+            getValue(employee.emergencyPhone) &&
+              `Phone: ${employee.emergencyPhone}`,
+            getValue(employee.emergencyRelation) &&
+              `Relation: ${employee.emergencyRelation}`,
+          ].filter(Boolean);
+
+          emergencyInfo.forEach((info) => {
+            doc.text(info, margin + 10, yPos);
+            yPos += 6;
+          });
+        }
+
+        // Family information (only if available)
+        if (
+          getValue(employee.spouseName) ||
+          (employee.childDetails && employee.childDetails.length > 0)
+        ) {
+          yPos += 3;
+          doc.setFont("helvetica", "bold");
+          doc.text("Family:", margin + 5, yPos);
+          yPos += 6;
+          doc.setFont("helvetica", "normal");
+
+          if (getValue(employee.spouseName)) {
+            doc.text(`Spouse: ${employee.spouseName}`, margin + 10, yPos);
+            yPos += 6;
+          }
+
+          if (employee.childDetails && employee.childDetails.length > 0) {
+            doc.text(
+              `Children: ${employee.childDetails.length}`,
+              margin + 10,
+              yPos,
+            );
+            yPos += 6;
+            employee.childDetails.forEach((child, childIndex) => {
+              if (getValue(child.name)) {
+                doc.text(
+                  `${childIndex + 1}. ${child.name} (${getValue(child.gender)}, ${getValue(child.dob)})`,
+                  margin + 15,
+                  yPos,
+                );
+                yPos += 5;
+              }
+            });
+          }
+        }
+
+        // Add separator
         yPos += 5;
-        doc.text(
-          `Position: ${employee.position} | Status: ${employee.status}`,
-          margin + 10,
-          yPos,
-        );
-        yPos += 5;
-        doc.text(
-          `Join Date: ${employee.joinDate} | Wing: ${employee.wing}`,
-          margin + 10,
-          yPos,
-        );
-        yPos += 5;
-        doc.text(
-          `Phone: ${employee.mobile} | Sponsor: ${employee.sponsor}`,
-          margin + 10,
-          yPos,
-        );
+        doc.setDrawColor(200, 200, 200);
+        doc.line(margin, yPos, pageWidth - margin, yPos);
         yPos += 10;
       });
 
-      // Footer
-      const pageCount = (doc as any).internal.pages.length - 1;
-      for (let i = 1; i <= pageCount; i++) {
+      // Add headers to all pages
+      const totalPages = (doc as any).internal.pages.length - 1;
+      for (let i = 1; i <= totalPages; i++) {
         doc.setPage(i);
-        doc.setFontSize(8);
-        doc.setFont("helvetica", "normal");
-        doc.text(
-          `Dubai Embassy HR Management System - Page ${i} of ${pageCount}`,
-          margin,
-          doc.internal.pageSize.height - 10,
-        );
+        addHeader(i, totalPages);
       }
 
       // Save with timestamp
       const timestamp = new Date().toISOString().split("T")[0];
-      doc.save(`dubai-embassy-hr-report-${timestamp}.pdf`);
+      doc.save(`embassy-hr-report-${timestamp}.pdf`);
     } catch (error: any) {
       console.error("PDF export failed:", error);
       throw new Error("Failed to export PDF: " + error.message);

@@ -1,5 +1,11 @@
 import axiosInstance from "@/utils/axiosInstance";
-import { setToken, setUser, clearAuthData, UserModel } from "@/utils/storage";
+import {
+  setToken,
+  setUser,
+  clearAuthData,
+  UserModel,
+  getUser,
+} from "@/utils/storage";
 
 export interface LoginCredentials {
   email: string;
@@ -23,6 +29,7 @@ export interface RegisterData {
     hrServices: boolean;
     settings: boolean;
   };
+  otp?: string;
 }
 
 export interface OTPData {
@@ -40,6 +47,13 @@ export interface ChangePasswordData {
   email: string;
   oldPassword: string;
   newPassword: string;
+}
+
+export interface UpdateProfileData {
+  name?: string;
+  phone?: string;
+  position?: string;
+  department?: string;
 }
 
 class AuthService {
@@ -167,6 +181,49 @@ class AuthService {
     }
   }
 
+  async registerWithOTP(data: RegisterData): Promise<AuthResponse> {
+    try {
+      // First verify OTP
+      if (data.otp) {
+        await this.verifyOTP({ email: data.email, otp: data.otp });
+      }
+
+      // Then proceed with registration
+      const response = await axiosInstance.post("/auth/register", data);
+      const { token, user, message } = response.data;
+
+      if (token && user) {
+        const structuredUser: UserModel = {
+          id: user.id || user._id || user.email,
+          name: user.name || "",
+          email: user.email,
+          role: user.role || "admin",
+          permissions: {
+            dashboard: user.permissions?.dashboard ?? true,
+            employees: user.permissions?.employees ?? true,
+            leaves: user.permissions?.leaves ?? true,
+            hrServices: user.permissions?.hrServices ?? true,
+            settings: user.permissions?.settings ?? true,
+          },
+        };
+
+        setToken(token);
+        setUser(structuredUser);
+
+        return {
+          token,
+          user: structuredUser,
+          message: message || "Registration successful",
+        };
+      }
+
+      return response.data;
+    } catch (error: any) {
+      console.error("Registration with OTP failed:", error);
+      throw new Error(error.response?.data?.message || "Registration failed");
+    }
+  }
+
   async sendOTP(email: string): Promise<{ message: string }> {
     try {
       const response = await axiosInstance.post("/auth/send-otp", { email });
@@ -224,6 +281,55 @@ class AuthService {
       console.error("Change password failed:", error);
       throw new Error(
         error.response?.data?.message || "Failed to change password",
+      );
+    }
+  }
+
+  async updateProfile(
+    data: UpdateProfileData,
+  ): Promise<{ message: string; user: UserModel }> {
+    try {
+      // Get current user to extract email
+      const currentUser = getUser();
+      if (!currentUser || !currentUser.email) {
+        throw new Error("User not found or email not available");
+      }
+
+      const response = await axiosInstance.put(
+        `/users/update-profile?email=${encodeURIComponent(currentUser.email)}`,
+        data,
+      );
+      const { user, message } = response.data;
+
+      if (user) {
+        const structuredUser: UserModel = {
+          id: user.id || user._id || user.email,
+          name: user.name || "",
+          email: user.email,
+          role: user.role || "admin",
+          permissions: {
+            dashboard: user.permissions?.dashboard ?? true,
+            employees: user.permissions?.employees ?? true,
+            leaves: user.permissions?.leaves ?? true,
+            hrServices: user.permissions?.hrServices ?? true,
+            settings: user.permissions?.settings ?? true,
+          },
+        };
+
+        // Update stored user data
+        setUser(structuredUser);
+
+        return {
+          message: message || "Profile updated successfully",
+          user: structuredUser,
+        };
+      }
+
+      return response.data;
+    } catch (error: any) {
+      console.log("Update profile failed:", error);
+      throw new Error(
+        error.response?.data?.message || "Failed to update profile",
       );
     }
   }
