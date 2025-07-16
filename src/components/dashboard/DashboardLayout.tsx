@@ -13,7 +13,7 @@ import {
   SettingsIcon,
 } from "lucide-react";
 import Image from "next/image";
-import emLogo from '@/components/dashboard/em_logo.png'; 
+import emLogo from "@/components/dashboard/em_logo.png";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -32,10 +32,10 @@ const DashboardLayout = ({
   const { theme, setTheme } = useTheme();
   const { user, logout, isAuthenticated, isLoading, hasPermission } = useAuth();
   const router = useRouter();
-  
+
   // Get current path to determine active navigation item
   const [currentPath, setCurrentPath] = React.useState("/");
-  
+
   React.useEffect(() => {
     if (typeof window !== "undefined") {
       setCurrentPath(window.location.pathname);
@@ -123,30 +123,28 @@ const DashboardLayout = ({
     <div className="flex h-screen bg-background">
       {/* Sidebar - hidden on mobile */}
       <aside className="hidden md:flex md:w-64 flex-col bg-card border-r p-4 space-y-6">
-<div className="flex items-center space-x-3">
-  <Image 
-    src={emLogo}
-    alt="Embassy Team Logo" 
-    width={60} // 🔼 Increased width
-    height={60} // 🔼 Increased height
-    className="h-10 w-10 object-contain" // h-10 = 40px
-    priority
-  />
-  <h1 className="text-2xl font-bold">HR Dashboard</h1> {/* Optional: bumped font size */}
-</div>
-
+        <div className="flex items-center space-x-3">
+          <Image
+            src={emLogo}
+            alt="Embassy Team Logo"
+            width={60} // 🔼 Increased width
+            height={60} // 🔼 Increased height
+            className="h-10 w-10 object-contain" // h-10 = 40px
+            priority
+          />
+          <h1 className="text-2xl font-bold">HR Dashboard</h1>{" "}
+          {/* Optional: bumped font size */}
+        </div>
 
         <Separator />
 
         <nav className="space-y-1">
           {hasPermission("dashboard") && (
-            <Button 
-              variant={currentPath === "/" ? "default" : "ghost"} 
+            <Button
+              variant={currentPath === "/" ? "default" : "ghost"}
               className={`w-full justify-start ${
-                currentPath === "/" 
-                  ? "bg-primary text-primary-foreground" 
-                  : ""
-              }`} 
+                currentPath === "/" ? "bg-primary text-primary-foreground" : ""
+              }`}
               asChild
             >
               <a href="/" onClick={() => setCurrentPath("/")}>
@@ -156,13 +154,13 @@ const DashboardLayout = ({
             </Button>
           )}
           {hasPermission("employees") && (
-            <Button 
-              variant={currentPath === "/employees" ? "default" : "ghost"} 
+            <Button
+              variant={currentPath === "/employees" ? "default" : "ghost"}
               className={`w-full justify-start ${
-                currentPath === "/employees" 
-                  ? "bg-primary text-primary-foreground" 
+                currentPath === "/employees"
+                  ? "bg-primary text-primary-foreground"
                   : ""
-              }`} 
+              }`}
               asChild
             >
               <a href="/employees" onClick={() => setCurrentPath("/employees")}>
@@ -172,13 +170,13 @@ const DashboardLayout = ({
             </Button>
           )}
           {hasPermission("leaves") && (
-            <Button 
-              variant={currentPath === "/leaves" ? "default" : "ghost"} 
+            <Button
+              variant={currentPath === "/leaves" ? "default" : "ghost"}
               className={`w-full justify-start ${
-                currentPath === "/leaves" 
-                  ? "bg-primary text-primary-foreground" 
+                currentPath === "/leaves"
+                  ? "bg-primary text-primary-foreground"
                   : ""
-              }`} 
+              }`}
               asChild
             >
               <a href="/leaves" onClick={() => setCurrentPath("/leaves")}>
@@ -188,29 +186,32 @@ const DashboardLayout = ({
             </Button>
           )}
           {hasPermission("hrServices") && (
-            <Button 
-              variant={currentPath === "/hr-services" ? "default" : "ghost"} 
+            <Button
+              variant={currentPath === "/hr-services" ? "default" : "ghost"}
               className={`w-full justify-start ${
-                currentPath === "/hr-services" 
-                  ? "bg-primary text-primary-foreground" 
+                currentPath === "/hr-services"
+                  ? "bg-primary text-primary-foreground"
                   : ""
-              }`} 
+              }`}
               asChild
             >
-              <a href="/hr-services" onClick={() => setCurrentPath("/hr-services")}>
+              <a
+                href="/hr-services"
+                onClick={() => setCurrentPath("/hr-services")}
+              >
                 <BellIcon className="mr-2 h-4 w-4" />
                 HR Services
               </a>
             </Button>
           )}
           {hasPermission("settings") && (
-            <Button 
-              variant={currentPath === "/settings" ? "default" : "ghost"} 
+            <Button
+              variant={currentPath === "/settings" ? "default" : "ghost"}
               className={`w-full justify-start ${
-                currentPath === "/settings" 
-                  ? "bg-primary text-primary-foreground" 
+                currentPath === "/settings"
+                  ? "bg-primary text-primary-foreground"
                   : ""
-              }`} 
+              }`}
               asChild
             >
               <a href="/settings" onClick={() => setCurrentPath("/settings")}>
@@ -262,11 +263,11 @@ const DashboardLayout = ({
               <div className="flex flex-col h-full bg-card p-4 space-y-6">
                 <div className="flex items-center space-x-2">
                   <div className="h-8 w-8 bg-white rounded-md flex items-center justify-center shadow-sm border">
-                    <Image 
+                    <Image
                       src={emLogo}
-                      alt="Embassy Team Logo" 
-                      width={50} 
-                      height={50} 
+                      alt="Embassy Team Logo"
+                      width={50}
+                      height={50}
                       className="h-6 w-6 object-contain"
                       priority
                     />
@@ -281,8 +282,8 @@ const DashboardLayout = ({
                     <Button
                       variant={currentPath === "/" ? "default" : "ghost"}
                       className={`w-full justify-start ${
-                        currentPath === "/" 
-                          ? "bg-primary text-primary-foreground" 
+                        currentPath === "/"
+                          ? "bg-primary text-primary-foreground"
                           : ""
                       }`}
                       asChild
@@ -295,15 +296,20 @@ const DashboardLayout = ({
                   )}
                   {hasPermission("employees") && (
                     <Button
-                      variant={currentPath === "/employees" ? "default" : "ghost"}
+                      variant={
+                        currentPath === "/employees" ? "default" : "ghost"
+                      }
                       className={`w-full justify-start ${
-                        currentPath === "/employees" 
-                          ? "bg-primary text-primary-foreground" 
+                        currentPath === "/employees"
+                          ? "bg-primary text-primary-foreground"
                           : ""
                       }`}
                       asChild
                     >
-                      <a href="/employees" onClick={() => setCurrentPath("/employees")}>
+                      <a
+                        href="/employees"
+                        onClick={() => setCurrentPath("/employees")}
+                      >
                         <UsersIcon className="mr-2 h-4 w-4" />
                         Employees
                       </a>
@@ -313,13 +319,16 @@ const DashboardLayout = ({
                     <Button
                       variant={currentPath === "/leaves" ? "default" : "ghost"}
                       className={`w-full justify-start ${
-                        currentPath === "/leaves" 
-                          ? "bg-primary text-primary-foreground" 
-                          : "
+                        currentPath === "/leaves"
+                          ? "bg-primary text-primary-foreground"
+                          : ""
                       }`}
                       asChild
                     >
-                      <a href="/leaves" onClick={() => setCurrentPath("/leaves")}>
+                      <a
+                        href="/leaves"
+                        onClick={() => setCurrentPath("/leaves")}
+                      >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         Leave Management
                       </a>
@@ -327,15 +336,20 @@ const DashboardLayout = ({
                   )}
                   {hasPermission("hrServices") && (
                     <Button
-                      variant={currentPath === "/hr-services" ? "default" : "ghost"}
+                      variant={
+                        currentPath === "/hr-services" ? "default" : "ghost"
+                      }
                       className={`w-full justify-start ${
-                        currentPath === "/hr-services" 
-                          ? "bg-primary text-primary-foreground" 
+                        currentPath === "/hr-services"
+                          ? "bg-primary text-primary-foreground"
                           : ""
                       }`}
                       asChild
                     >
-                      <a href="/hr-services" onClick={() => setCurrentPath("/hr-services")}>
+                      <a
+                        href="/hr-services"
+                        onClick={() => setCurrentPath("/hr-services")}
+                      >
                         <BellIcon className="mr-2 h-4 w-4" />
                         HR Services
                       </a>
@@ -343,15 +357,20 @@ const DashboardLayout = ({
                   )}
                   {hasPermission("settings") && (
                     <Button
-                      variant={currentPath === "/settings" ? "default" : "ghost"}
+                      variant={
+                        currentPath === "/settings" ? "default" : "ghost"
+                      }
                       className={`w-full justify-start ${
-                        currentPath === "/settings" 
-                          ? "bg-primary text-primary-foreground" 
+                        currentPath === "/settings"
+                          ? "bg-primary text-primary-foreground"
                           : ""
                       }`}
                       asChild
                     >
-                      <a href="/settings" onClick={() => setCurrentPath("/settings")}>
+                      <a
+                        href="/settings"
+                        onClick={() => setCurrentPath("/settings")}
+                      >
                         <SettingsIcon className="mr-2 h-4 w-4" />
                         Settings
                       </a>
@@ -372,9 +391,6 @@ const DashboardLayout = ({
               </div>
             </SheetContent>
           </Sheet>
-
-
-
 
           {/* Right side header items */}
           <div className="flex items-center space-x-4">
