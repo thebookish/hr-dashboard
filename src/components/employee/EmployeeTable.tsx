@@ -678,22 +678,6 @@ function EmployeeEditForm({
                 onChange={(e) => updateFormData("retireDate", e.target.value)}
               />
             </div>
-            <div>
-              <Label htmlFor="status">Status</Label>
-              <Select
-                value={formData.status || "active"}
-                onValueChange={(value) => updateFormData("status", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </div>
         </TabsContent>
 
@@ -1127,18 +1111,6 @@ function EmployeeEditForm({
         <TabsContent value="leave" className="space-y-4">
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <Label htmlFor="sickLeave">Sick Leave</Label>
-              <Input
-                id="sickLeave"
-                type="number"
-                min="0"
-                value={formData.sickLeave || 0}
-                onChange={(e) =>
-                  updateFormData("sickLeave", parseInt(e.target.value) || 0)
-                }
-              />
-            </div>
-            <div>
               <Label htmlFor="casualLeave">Casual Leave</Label>
               <Input
                 id="casualLeave"
@@ -1151,7 +1123,7 @@ function EmployeeEditForm({
               />
             </div>
             <div>
-              <Label htmlFor="paidLeave">Paid Leave</Label>
+              <Label htmlFor="paidLeave">Annual Leave</Label>
               <Input
                 id="paidLeave"
                 type="number"

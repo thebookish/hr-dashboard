@@ -41,7 +41,7 @@ const RecentActivity = ({
     }
   };
 
-  const formatTime = (timestamp: string) => {
+  const formatTime = (timestamp: string, activityType?: string) => {
     if (!timestamp) return "Unknown time";
 
     try {
@@ -50,6 +50,11 @@ const RecentActivity = ({
       // Check if date is valid
       if (isNaN(date.getTime())) {
         return "Invalid date";
+      }
+
+      // For leave requests, show only the date without time
+      if (activityType === "leave") {
+        return date.toLocaleDateString();
       }
 
       const now = new Date();
@@ -130,7 +135,7 @@ const RecentActivity = ({
         </div>
         <div className="flex flex-col items-end">
           <span className="text-xs text-gray-500 dark:text-gray-400">
-            {formatTime(activity.timestamp)}
+            {formatTime(activity.timestamp, activity.type)}
           </span>
           <span
             className={`text-xs px-2 py-0.5 rounded-full ${
