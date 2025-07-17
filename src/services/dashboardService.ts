@@ -76,7 +76,7 @@ class DashboardService {
               : leave.status === "approved"
                 ? "completed"
                 : "rejected",
-          timestamp: leave.reviewedAt,
+          timestamp: "",
         });
       });
 
