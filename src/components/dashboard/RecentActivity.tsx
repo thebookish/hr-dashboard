@@ -42,6 +42,11 @@ const RecentActivity = ({
   };
 
   const formatTime = (timestamp: string, activityType?: string) => {
+    // For leave requests, show nothing
+    if (activityType === "leave") {
+      return "";
+    }
+
     if (!timestamp) return "Unknown time";
 
     try {
@@ -50,11 +55,6 @@ const RecentActivity = ({
       // Check if date is valid
       if (isNaN(date.getTime())) {
         return "Invalid date";
-      }
-
-      // For leave requests, show only the date without time
-      if (activityType === "leave") {
-        return date.toLocaleDateString();
       }
 
       const now = new Date();
