@@ -155,6 +155,69 @@ export interface EmployeeUpdateData {
 }
 
 class EmployeeService {
+  async getEmployeesByName(name: string): Promise<Employee[]> {
+    try {
+      // First try the search-by-name endpoint
+      let response;
+      try {
+        response = await axiosInstance.get(
+          `/employees/search-by-name?name=${encodeURIComponent(name)}`,
+        );
+      } catch (searchError: any) {
+        // If search-by-name endpoint doesn't exist, fall back to getting all employees and filtering
+        console.warn(
+          "Search-by-name endpoint not available, falling back to client-side filtering",
+        );
+        const allEmployeesResponse = await axiosInstance.get(
+          "/employees/approved",
+        );
+        const allEmployees = allEmployeesResponse.data;
+
+        // Filter employees by name on client side
+        const filteredEmployees = allEmployees.filter((emp: any) => {
+          const fullName = `${emp.firstName || ""} ${emp.surname || ""}`.trim();
+          const searchName = name.toLowerCase();
+          return (
+            fullName.toLowerCase().includes(searchName) ||
+            (emp.firstName &&
+              emp.firstName.toLowerCase().includes(searchName)) ||
+            (emp.surname && emp.surname.toLowerCase().includes(searchName)) ||
+            (emp.name && emp.name.toLowerCase().includes(searchName))
+          );
+        });
+
+        response = { data: filteredEmployees };
+      }
+
+      // Transform the data to match our Employee interface
+      const employees = response.data.map((emp: any) => ({
+        id: emp.id || emp._id,
+        name:
+          `${emp.firstName || ""} ${emp.surname || ""}`.trim() ||
+          emp.fullName ||
+          emp.name,
+        email: emp.email,
+        phone: emp.mobile || emp.phone,
+        department: emp.wing || emp.department || "General",
+        position: emp.position || "Employee",
+        status: emp.status || "active",
+        verified: true,
+        avatar: emp.photo || emp.avatar,
+        joinDate: emp.joinDate,
+        salary: parseInt(emp.salary) || 0,
+        sickLeave: emp.sickLeave || 0,
+        casualLeave: emp.casualLeave || 0,
+        paidLeave: emp.paidLeave || 0,
+      }));
+      return employees;
+    } catch (error: any) {
+      console.error("Failed to fetch employees by name:", error);
+      throw new Error(
+        error.response?.data?.message || "Failed to fetch employees by name",
+      );
+    }
+  }
+
   async getAllEmployees(): Promise<Employee[]> {
     try {
       const response = await axiosInstance.get("/employees/approved");

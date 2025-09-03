@@ -219,7 +219,7 @@ const LeaveRequests = ({
                       </div>
 
                       {/* Employee Details */}
-                      <div className="grid grid-cols-2 gap-2 mt-3 text-xs text-gray-600 dark:text-gray-400">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3 text-xs text-gray-600 dark:text-gray-400">
                         {request.designation && (
                           <div className="flex items-center gap-1">
                             <Building className="h-3 w-3" />
@@ -277,11 +277,11 @@ const LeaveRequests = ({
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-green-700 border-green-200 hover:bg-green-50"
+                      className="text-green-700 border-green-200 hover:bg-green-50 flex-1 sm:flex-none"
                       onClick={() => handleApproveLeave(request)}
                     >
                       <Check className="h-4 w-4 mr-1" />
@@ -290,7 +290,7 @@ const LeaveRequests = ({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-red-700 border-red-200 hover:bg-red-50"
+                      className="text-red-700 border-red-200 hover:bg-red-50 flex-1 sm:flex-none"
                       onClick={() => handleRejectLeave(request)}
                     >
                       <X className="h-4 w-4 mr-1" />

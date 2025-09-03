@@ -54,6 +54,11 @@ import sponsorService, {
 } from "@/services/sponsorService";
 import taskService, { TaskModel, TaskData } from "@/services/taskService";
 import reportService, { ReportData } from "@/services/reportService";
+import employeeService, {
+  EmployeeModelNew,
+  EmployeeUpdateData,
+  Employee,
+} from "@/services/employeeService";
 
 // Payment History Component
 function PaymentHistoryCard({
@@ -313,15 +318,19 @@ export default function HRServicesPage() {
   const [sponsorData, setSponsorData] = useState<SponsorModel | null>(null);
   const [tasks, setTasks] = useState<TaskModel[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [showSearchModal, setShowSearchModal] = useState(false);
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
   // Salary Management Functions
-  const handleSalarySearch = async () => {
-    if (!selectedEmployee) return;
+  const handleSalarySearch = async (email?: string) => {
+    const employeeEmail = email || selectedEmployee;
+    if (!employeeEmail) return;
     setIsLoading(true);
     try {
-      const data = await salaryService.getSalaryInfo(selectedEmployee);
+      const data = await salaryService.getSalaryInfo(employeeEmail);
       setSalaryData(data);
     } catch (error) {
       console.error("Failed to fetch salary data:", error);
@@ -367,11 +376,12 @@ export default function HRServicesPage() {
   };
 
   // Family Management Functions
-  const handleFamilySearch = async () => {
-    if (!selectedEmployee) return;
+  const handleFamilySearch = async (email?: string) => {
+    const employeeEmail = email || selectedEmployee;
+    if (!employeeEmail) return;
     setIsLoading(true);
     try {
-      const data = await familyService.getFamilyMembers(selectedEmployee);
+      const data = await familyService.getFamilyMembers(employeeEmail);
       setFamilyMembers(data);
     } catch (error) {
       console.error("Failed to fetch family data:", error);
@@ -404,11 +414,12 @@ export default function HRServicesPage() {
   };
 
   // Sponsor Management Functions
-  const handleSponsorSearch = async () => {
-    if (!selectedEmployee) return;
+  const handleSponsorSearch = async (email?: string) => {
+    const employeeEmail = email || selectedEmployee;
+    if (!employeeEmail) return;
     setIsLoading(true);
     try {
-      const data = await sponsorService.getSponsor(selectedEmployee);
+      const data = await sponsorService.getSponsor(employeeEmail);
       setSponsorData(data);
     } catch (error) {
       console.error("Failed to fetch sponsor data:", error);
@@ -444,11 +455,12 @@ export default function HRServicesPage() {
   };
 
   // Task Management Functions
-  const handleTaskSearch = async () => {
-    if (!selectedEmployee) return;
+  const handleTaskSearch = async (email?: string) => {
+    const employeeEmail = email || selectedEmployee;
+    if (!employeeEmail) return;
     setIsLoading(true);
     try {
-      const data = await taskService.getUserTasks(selectedEmployee);
+      const data = await taskService.getUserTasks(employeeEmail);
       setTasks(data);
     } catch (error) {
       console.error("Failed to fetch tasks:", error);
@@ -476,6 +488,91 @@ export default function HRServicesPage() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Employee Search Functions
+  const handleEmployeeSearch = async () => {
+    if (!searchInput.trim()) {
+      setShowSearchResults(false);
+      setSearchResults([]);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Check if input looks like an email
+      const isEmail = searchInput.includes("@") && searchInput.includes(".");
+
+      if (isEmail) {
+        // Search by email - direct selection
+        setSelectedEmployee(searchInput.trim());
+        setShowSearchResults(false);
+        setSearchResults([]);
+        await loadEmployeeData(searchInput.trim());
+        toast({
+          title: "Employee Selected",
+          description: `Selected employee: ${searchInput.trim()}`,
+          variant: "default",
+        });
+      } else {
+        // Search by name - show results
+        console.log("Searching for employees by name:", searchInput);
+        const results = await employeeService.getEmployeesByName(
+          searchInput.trim(),
+        );
+        console.log("Search results:", results);
+
+        setSearchResults(results);
+        setShowSearchModal(results.length > 0);
+
+        if (results.length === 0) {
+          toast({
+            title: "No Results",
+            description:
+              "No employees found with that name. Try a different search term.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Search Results",
+            description: `Found ${results.length} employee${results.length > 1 ? "s" : ""}. Please select one from the modal.`,
+            variant: "default",
+          });
+        }
+      }
+    } catch (error: any) {
+      console.error("Failed to search employees:", error);
+      toast({
+        title: "Search Error",
+        description:
+          error.message || "Failed to search for employees. Please try again.",
+        variant: "destructive",
+      });
+      setShowSearchResults(false);
+      setSearchResults([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEmployeeSelect = async (employee: Employee) => {
+    setSelectedEmployee(employee.email);
+    setSearchInput(employee.name);
+    setShowSearchModal(false);
+    await loadEmployeeData(employee.email);
+  };
+
+  const loadEmployeeData = async (email: string) => {
+    try {
+      await Promise.all([
+        handleSalarySearch(email),
+        handleFamilySearch(email),
+        handleSponsorSearch(email),
+        handleTaskSearch(email),
+      ]);
+    } catch (error) {
+      console.error("Failed to load employee data:", error);
     }
   };
 
@@ -533,34 +630,49 @@ export default function HRServicesPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col gap-8 p-6 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-blue-900 min-h-screen">
-        <div className="flex justify-between items-center bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent">
+      <div className="flex flex-col gap-4 sm:gap-6 md:gap-8 p-3 sm:p-4 md:p-6 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-blue-900 min-h-screen">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center bg-white dark:bg-gray-800 p-3 sm:p-4 md:p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 gap-3 sm:gap-4">
+          <div className="flex-1 min-w-0 w-full">
+            <h1 className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent leading-tight break-words hyphens-auto">
               Embassy Team HR Services
             </h1>
-            <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
+            <p className="text-gray-600 dark:text-gray-300 mt-1 sm:mt-2 text-xs sm:text-sm leading-relaxed break-words">
               Comprehensive management of salaries, family information,
               sponsors, and tasks.
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
             <Button
               onClick={handleGenerateReport}
               disabled={isGeneratingReport}
               variant="outline"
+              className="flex-1 sm:flex-none text-xs sm:text-sm"
             >
-              <FileText className="h-4 w-4 mr-2" />
-              {isGeneratingReport ? "Generating..." : "Generate Report"}
+              <FileText className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">
+                {isGeneratingReport ? "Generating..." : "Generate Report"}
+              </span>
+              <span className="sm:hidden">
+                {isGeneratingReport ? "Generating..." : "Report"}
+              </span>
             </Button>
             {reportData && (
               <>
-                <Button onClick={handleExportPDF} variant="outline">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export PDF
+                <Button
+                  onClick={handleExportPDF}
+                  variant="outline"
+                  className="flex-1 sm:flex-none text-xs sm:text-sm"
+                >
+                  <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Export PDF</span>
+                  <span className="sm:hidden">PDF</span>
                 </Button>
-                <Button onClick={handlePrintReport} variant="outline">
-                  <Printer className="h-4 w-4 mr-2" />
+                <Button
+                  onClick={handlePrintReport}
+                  variant="outline"
+                  className="flex-1 sm:flex-none text-xs sm:text-sm"
+                >
+                  <Printer className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   Print
                 </Button>
               </>
@@ -579,38 +691,106 @@ export default function HRServicesPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-4 items-end">
-              <div className="flex-1">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-end relative">
+              <div className="flex-1 relative">
                 <Label
-                  htmlFor="employee-email"
-                  className="text-white font-semibold"
+                  htmlFor="employee-search"
+                  className="text-white font-semibold text-sm sm:text-base"
                 >
-                  Employee Email
+                  Employee Search
                 </Label>
                 <Input
-                  id="employee-email"
-                  placeholder="Enter employee email..."
-                  value={selectedEmployee}
-                  onChange={(e) => setSelectedEmployee(e.target.value)}
-                  className="bg-white/90 dark:bg-white/95 border-white/30 dark:border-white/40 text-gray-900 placeholder:text-gray-500 mt-2"
+                  id="employee-search"
+                  placeholder="Enter employee name or email..."
+                  value={searchInput}
+                  onChange={(e) => {
+                    setSearchInput(e.target.value);
+                    if (!e.target.value.trim()) {
+                      setShowSearchModal(false);
+                      setSearchResults([]);
+                      setSelectedEmployee("");
+                    }
+                  }}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleEmployeeSearch();
+                    }
+                  }}
+                  className="bg-white/90 dark:bg-white/95 border-white/30 dark:border-white/40 text-gray-900 placeholder:text-gray-500 mt-2 text-sm sm:text-base"
                 />
               </div>
               <Button
-                onClick={() => {
-                  handleSalarySearch();
-                  handleFamilySearch();
-                  handleSponsorSearch();
-                  handleTaskSearch();
-                }}
-                disabled={!selectedEmployee || isLoading}
+                onClick={handleEmployeeSearch}
+                disabled={!searchInput.trim() || isLoading}
                 variant="secondary"
-                className="bg-white dark:bg-gray-100 text-blue-700 hover:bg-gray-100 dark:hover:bg-gray-200 font-semibold"
+                className="bg-white dark:bg-gray-100 text-blue-700 hover:bg-gray-100 dark:hover:bg-gray-200 font-semibold w-full sm:w-auto text-sm sm:text-base"
               >
-                {isLoading ? "Loading..." : "Load Employee Data"}
+                {isLoading ? "Searching..." : "Search"}
               </Button>
             </div>
+
+            {/* Selected Employee Display */}
+            {selectedEmployee && (
+              <div className="mt-3 sm:mt-4 p-3 bg-white/20 dark:bg-white/30 rounded-lg">
+                <p className="text-white font-medium text-sm sm:text-base break-all">
+                  Selected Employee: {selectedEmployee}
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
+
+        {/* Employee Search Results Modal */}
+        <Dialog open={showSearchModal} onOpenChange={setShowSearchModal}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden mx-4">
+            <DialogHeader>
+              <DialogTitle>Select Employee</DialogTitle>
+            </DialogHeader>
+            <div className="max-h-[60vh] overflow-y-auto">
+              <div className="space-y-2">
+                {searchResults.map((employee) => (
+                  <div
+                    key={employee.id}
+                    className="p-3 sm:p-4 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer border border-gray-200 dark:border-gray-600 rounded-lg transition-colors"
+                    onClick={() => handleEmployeeSelect(employee)}
+                  >
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
+                        <AvatarImage src={employee.avatar} />
+                        <AvatarFallback className="text-xs sm:text-sm font-semibold">
+                          {employee.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-900 dark:text-gray-100 text-base sm:text-lg truncate">
+                          {employee.name}
+                        </p>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">
+                          {employee.email}
+                        </p>
+                        <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 font-medium truncate">
+                          {employee.department}
+                        </p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-shrink-0"
+                      >
+                        Select
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Report Summary */}
         {reportData && (
@@ -624,44 +804,44 @@ export default function HRServicesPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">
+                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-blue-600">
                     {reportData.employees.length}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                  <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                     Total Employees
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-green-600 dark:text-green-400">
                     {
                       reportData.leaves.filter((l) => l.status === "Approved")
                         .length
                     }
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                  <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                     Approved Leaves
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-orange-600 dark:text-orange-400">
                     {reportData.sponsors.length}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                  <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                     Active Sponsors
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-purple-600 dark:text-purple-400">
                     {reportData.tasks.length}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                  <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                     Total Tasks
                   </div>
                 </div>
               </div>
-              <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+              <div className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                 Generated on:{" "}
                 {new Date(reportData.generatedDate).toLocaleString()}
               </div>
@@ -669,81 +849,105 @@ export default function HRServicesPage() {
           </Card>
         )}
 
-        {/* Services Tabs */}
-        <Card className="bg-white dark:bg-gray-800 shadow-lg border-gray-200 dark:border-gray-700">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-4 bg-gray-50 dark:bg-gray-700 p-2 rounded-xl">
-              <TabsTrigger
-                value="salary"
-                className="flex items-center gap-2 font-semibold"
-              >
-                <DollarSign className="h-4 w-4" />
-                Salary Management
-              </TabsTrigger>
-              <TabsTrigger
-                value="family"
-                className="flex items-center gap-2 font-semibold"
-              >
-                <Users className="h-4 w-4" />
-                Family Records
-              </TabsTrigger>
-              <TabsTrigger
-                value="sponsor"
-                className="flex items-center gap-2 font-semibold"
-              >
-                <Building className="h-4 w-4" />
-                Sponsor Details
-              </TabsTrigger>
-              <TabsTrigger
-                value="tasks"
-                className="flex items-center gap-2 font-semibold"
-              >
-                <CheckSquare className="h-4 w-4" />
-                Task Management
-              </TabsTrigger>
-            </TabsList>
+        {/* Services Tabs - Only show when employee is selected */}
+        {selectedEmployee ? (
+          <Card className="bg-white dark:bg-gray-800 shadow-lg border-gray-200 dark:border-gray-700">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-gray-50 dark:bg-gray-700 p-2 rounded-xl">
+                <TabsTrigger
+                  value="salary"
+                  className="flex items-center gap-1 sm:gap-2 font-semibold text-xs sm:text-sm"
+                >
+                  <DollarSign className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Salary Management</span>
+                  <span className="sm:hidden">Salary</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="family"
+                  className="flex items-center gap-1 sm:gap-2 font-semibold text-xs sm:text-sm"
+                >
+                  <Users className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Family Records</span>
+                  <span className="sm:hidden">Family</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="sponsor"
+                  className="flex items-center gap-1 sm:gap-2 font-semibold text-xs sm:text-sm"
+                >
+                  <Building className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Sponsor Details</span>
+                  <span className="sm:hidden">Sponsor</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="tasks"
+                  className="flex items-center gap-1 sm:gap-2 font-semibold text-xs sm:text-sm"
+                >
+                  <CheckSquare className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Task Management</span>
+                  <span className="sm:hidden">Tasks</span>
+                </TabsTrigger>
+              </TabsList>
 
-            {/* Salary Management */}
-            <TabsContent value="salary" className="space-y-4">
-              <SalaryManagement
-                salaryData={salaryData}
-                onUpdate={handleSalaryUpdate}
-                isLoading={isLoading}
-                selectedEmployee={selectedEmployee}
-              />
-            </TabsContent>
+              {/* Salary Management */}
+              <TabsContent value="salary" className="space-y-4">
+                <SalaryManagement
+                  salaryData={salaryData}
+                  onUpdate={handleSalaryUpdate}
+                  isLoading={isLoading}
+                  selectedEmployee={selectedEmployee}
+                />
+              </TabsContent>
 
-            {/* Family Management */}
-            <TabsContent value="family" className="space-y-4">
-              <FamilyManagement
-                familyMembers={familyMembers}
-                onAddMember={handleAddFamilyMember}
-                isLoading={isLoading}
-                selectedEmployee={selectedEmployee}
-              />
-            </TabsContent>
+              {/* Family Management */}
+              <TabsContent value="family" className="space-y-4">
+                <FamilyManagement
+                  familyMembers={familyMembers}
+                  onAddMember={handleAddFamilyMember}
+                  isLoading={isLoading}
+                  selectedEmployee={selectedEmployee}
+                />
+              </TabsContent>
 
-            {/* Sponsor Management */}
-            <TabsContent value="sponsor" className="space-y-4">
-              <SponsorManagement
-                sponsorData={sponsorData}
-                onUpdate={handleSponsorUpdate}
-                isLoading={isLoading}
-                selectedEmployee={selectedEmployee}
-              />
-            </TabsContent>
+              {/* Sponsor Management */}
+              <TabsContent value="sponsor" className="space-y-4">
+                <SponsorManagement
+                  sponsorData={sponsorData}
+                  onUpdate={handleSponsorUpdate}
+                  isLoading={isLoading}
+                  selectedEmployee={selectedEmployee}
+                />
+              </TabsContent>
 
-            {/* Task Management */}
-            <TabsContent value="tasks" className="space-y-4">
-              <TaskManagement
-                tasks={tasks}
-                onCreate={handleCreateTask}
-                isLoading={isLoading}
-                selectedEmployee={selectedEmployee}
-              />
-            </TabsContent>
-          </Tabs>
-        </Card>
+              {/* Task Management */}
+              <TabsContent value="tasks" className="space-y-4">
+                <TaskManagement
+                  tasks={tasks}
+                  onCreate={handleCreateTask}
+                  isLoading={isLoading}
+                  selectedEmployee={selectedEmployee}
+                />
+              </TabsContent>
+            </Tabs>
+          </Card>
+        ) : (
+          <Card className="bg-white dark:bg-gray-800 shadow-lg border-gray-200 dark:border-gray-700">
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <div className="text-center space-y-3 sm:space-y-4">
+                <div className="p-3 sm:p-4 bg-blue-100 dark:bg-blue-900/30 rounded-full w-fit mx-auto">
+                  <Users className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  Select an Employee
+                </h3>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 max-w-md mx-auto px-4">
+                  Please search and select an employee from the search box above
+                  to access their salary information, family records, sponsor
+                  details, and task management.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </DashboardLayout>
   );
@@ -856,7 +1060,7 @@ function SalaryManagement({
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 Basic Salary Information
               </h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="email">Employee Email</Label>
                   <Input
@@ -943,7 +1147,7 @@ function SalaryManagement({
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 Payment History
               </h3>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="month">Month (e.g. May 2025)</Label>
                   <Input
@@ -1000,7 +1204,7 @@ function SalaryManagement({
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 Upcoming Increment
               </h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="incrementDate">
                     Effective Date (e.g. 2025-08-01)

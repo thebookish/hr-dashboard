@@ -13,7 +13,7 @@ import {
   SettingsIcon,
 } from "lucide-react";
 import Image from "next/image";
-import emLogo from "@/components/dashboard/em_logo.png";
+import emLogo from "./em_logo.png";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -126,14 +126,12 @@ const DashboardLayout = ({
         <div className="flex items-center space-x-3">
           <Image
             src={emLogo}
-            alt="Embassy Team Logo"
-            width={60} // 🔼 Increased width
-            height={60} // 🔼 Increased height
-            className="h-10 w-10 object-contain" // h-10 = 40px
-            priority
+            alt="EM Logo"
+            width={40}
+            height={40}
+            className="rounded-lg"
           />
-          <h1 className="text-2xl font-bold">HR Dashboard</h1>{" "}
-          {/* Optional: bumped font size */}
+          <h1 className="text-2xl font-bold">HR Dashboard</h1>
         </div>
 
         <Separator />
@@ -262,16 +260,13 @@ const DashboardLayout = ({
             <SheetContent side="left" className="w-64 p-0">
               <div className="flex flex-col h-full bg-card p-4 space-y-6">
                 <div className="flex items-center space-x-2">
-                  <div className="h-8 w-8 bg-white rounded-md flex items-center justify-center shadow-sm border">
-                    <Image
-                      src={emLogo}
-                      alt="Embassy Team Logo"
-                      width={50}
-                      height={50}
-                      className="h-6 w-6 object-contain"
-                      priority
-                    />
-                  </div>
+                  <Image
+                    src={emLogo}
+                    alt="EM Logo"
+                    width={32}
+                    height={32}
+                    className="rounded-md"
+                  />
                   <h1 className="text-xl font-bold">HR Dashboard</h1>
                 </div>
 

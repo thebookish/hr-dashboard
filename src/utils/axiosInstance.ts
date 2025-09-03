@@ -2,7 +2,7 @@ import axios from "axios";
 import { getToken, removeToken } from "./storage";
 
 const BASE_URL =
-  "https://hrms-hgdtc3e2chcbb8h0.southeastasia-01.azurewebsites.net/api";
+  "https://hrm-backend-gjaahxhpfudnf0f2.southeastasia-01.azurewebsites.net/api";
 
 // Create axios instance
 const axiosInstance = axios.create({

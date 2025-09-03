@@ -860,19 +860,19 @@ export default function SettingsPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col gap-6 p-6 bg-background">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+      <div className="flex flex-col gap-4 sm:gap-6 p-3 sm:p-4 md:p-6 bg-background">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 break-words">
               Settings
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1 break-words">
               Manage your account settings and preferences.
             </p>
           </div>
         </div>
 
-        <div className="grid gap-6">
+        <div className="grid gap-4 sm:gap-6">
           {/* Profile Settings */}
           <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
             <CardHeader>

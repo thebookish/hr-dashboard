@@ -230,20 +230,20 @@ const EmployeeTable = ({
             filteredEmployees.map((employee) => (
               <div
                 key={employee.id}
-                className="flex items-center justify-between p-4 border border-gray-100 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200"
+                className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border border-gray-100 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200 gap-4"
               >
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-4 flex-1">
                   <div className="flex-shrink-0 w-10 h-10 bg-gray-100 dark:bg-gray-600 rounded-full flex items-center justify-center">
                     <User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
                   </div>
-                  <div>
-                    <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">
                       {employee.name}
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
                       {employee.email}
                     </p>
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="flex flex-wrap items-center gap-2 mt-1">
                       <span className="text-xs text-gray-600 dark:text-gray-400">
                         {employee.position} • {employee.department}
                       </span>
@@ -254,7 +254,7 @@ const EmployeeTable = ({
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 flex-shrink-0">
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button
@@ -265,7 +265,7 @@ const EmployeeTable = ({
                         <Edit className="h-4 w-4" />
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 mx-4">
                       <DialogHeader>
                         <DialogTitle>
                           Edit Employee: {employee.name}
@@ -527,7 +527,7 @@ function EmployeeEditForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6">
           <TabsTrigger value="personal">Personal</TabsTrigger>
           <TabsTrigger value="job">Job Info</TabsTrigger>
           <TabsTrigger value="contact">Contact</TabsTrigger>
@@ -537,7 +537,7 @@ function EmployeeEditForm({
         </TabsList>
 
         <TabsContent value="personal" className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="firstName">First Name</Label>
               <Input
@@ -635,7 +635,7 @@ function EmployeeEditForm({
         </TabsContent>
 
         <TabsContent value="job" className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="position">Position</Label>
               <Input
@@ -682,7 +682,7 @@ function EmployeeEditForm({
         </TabsContent>
 
         <TabsContent value="contact" className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="email">Email</Label>
               <Input
@@ -736,7 +736,7 @@ function EmployeeEditForm({
           </div>
           <div className="space-y-4">
             <h4 className="font-semibold text-lg">Emergency Contact</h4>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="emergencyName">Emergency Contact Name</Label>
                 <Input
@@ -782,7 +782,7 @@ function EmployeeEditForm({
           </div>
           <div className="space-y-4">
             <h4 className="font-semibold text-lg">Banking Information</h4>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="bank">Bank</Label>
                 <Input
@@ -822,7 +822,7 @@ function EmployeeEditForm({
         </TabsContent>
 
         <TabsContent value="documents" className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="passportNo">Passport Number</Label>
               <Input
@@ -911,7 +911,7 @@ function EmployeeEditForm({
               <FileText className="h-5 w-5" />
               Uploaded Documents
             </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
                 {
                   key: "passport",
@@ -1109,7 +1109,7 @@ function EmployeeEditForm({
         </TabsContent>
 
         <TabsContent value="leave" className="space-y-4">
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <Label htmlFor="casualLeave">Casual Leave</Label>
               <Input

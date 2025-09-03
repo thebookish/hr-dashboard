@@ -126,8 +126,8 @@ const NotificationsFeed = ({
 
   return (
     <Card className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
-      <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-gray-50 dark:border-gray-700">
-        <CardTitle className="text-lg font-medium flex items-center gap-2 text-gray-800 dark:text-gray-200">
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-2 border-b border-gray-50 dark:border-gray-700 gap-2">
+        <CardTitle className="text-base sm:text-lg font-medium flex items-center gap-2 text-gray-800 dark:text-gray-200">
           <Bell className="h-4 w-4 text-gray-600 dark:text-gray-400" />
           Notifications
           {unreadCount > 0 && (
@@ -144,9 +144,10 @@ const NotificationsFeed = ({
             variant="ghost"
             size="sm"
             onClick={handleMarkAllAsRead}
-            className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+            className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 text-xs sm:text-sm"
           >
-            Mark all as read
+            <span className="hidden sm:inline">Mark all as read</span>
+            <span className="sm:hidden">Mark all</span>
           </Button>
         )}
       </CardHeader>
@@ -174,20 +175,21 @@ const NotificationsFeed = ({
                     {notification.message}
                   </p>
                   {!notification.read && (
-                    <div className="flex gap-2 mt-2">
+                    <div className="flex flex-col sm:flex-row gap-2 mt-2">
                       <Button
                         size="sm"
                         variant="outline"
-                        className="h-7 px-2 py-0 text-xs border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
+                        className="h-7 px-2 py-0 text-xs border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 flex-1 sm:flex-none"
                         onClick={() => handleMarkAsRead(notification.id)}
                       >
                         <Check className="h-3 w-3 mr-1" />
-                        Mark as read
+                        <span className="hidden sm:inline">Mark as read</span>
+                        <span className="sm:hidden">Read</span>
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-7 px-2 py-0 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                        className="h-7 px-2 py-0 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 flex-1 sm:flex-none"
                         onClick={() => handleDismiss(notification.id)}
                       >
                         <X className="h-3 w-3 mr-1" />

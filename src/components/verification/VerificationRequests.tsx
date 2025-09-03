@@ -280,89 +280,105 @@ const VerificationRequests = ({
               pendingRequests.map((request) => (
                 <div
                   key={request.id}
-                  className="flex items-center justify-between p-4 border border-gray-100 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200"
+                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border border-gray-100 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200 gap-4"
                 >
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-4 flex-1">
                     <div className="flex-shrink-0 w-10 h-10 bg-gray-100 dark:bg-gray-600 rounded-full flex items-center justify-center">
                       <User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
                     </div>
-                    <div>
-                      <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">
                         {request.employeeName}
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
                         {request.employeeEmail}
                       </p>
-                      <div className="flex items-center gap-4 mt-2">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2">
                         <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
                           <Briefcase className="h-3 w-3" />
-                          {request.personalInfo.position}
+                          <span className="truncate">
+                            {request.personalInfo.position}
+                          </span>
                         </div>
                         <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
                           <Calendar className="h-3 w-3" />
-                          {formatDate(request.submittedDate)}
+                          <span className="hidden sm:inline">
+                            {formatDate(request.submittedDate)}
+                          </span>
+                          <span className="sm:hidden">
+                            {new Date(
+                              request.submittedDate,
+                            ).toLocaleDateString()}
+                          </span>
                         </div>
                         {getStatusBadge(request.status)}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          View Details
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-                        <DialogHeader>
-                          <DialogTitle>
-                            Verification Request: {request.employeeName}
-                          </DialogTitle>
-                        </DialogHeader>
-                        <VerificationDetailsView
-                          request={request}
-                          onApprove={() => handleApproveVerification(request)}
-                          onReject={() => handleRejectVerification(request)}
-                          onViewDocument={handleViewDocument}
-                          onDownloadDocument={handleDownloadDocument}
-                        />
-                      </DialogContent>
-                    </Dialog>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-green-700 border-green-200 hover:bg-green-50"
-                      onClick={() => handleApproveVerification(request)}
-                    >
-                      <CheckCircle className="h-4 w-4 mr-1" />
-                      Approve
-                    </Button>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-red-700 border-red-200 hover:bg-red-50"
-                        >
-                          <XCircle className="h-4 w-4 mr-1" />
-                          Reject
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-                        <DialogHeader>
-                          <DialogTitle>Reject Verification Request</DialogTitle>
-                        </DialogHeader>
-                        <RejectVerificationForm
-                          request={request}
-                          onReject={() => handleRejectVerification(request)}
-                        />
-                      </DialogContent>
-                    </Dialog>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
+                    <div className="flex items-center space-x-2">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 flex-1 sm:flex-none"
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            <span className="hidden sm:inline">
+                              View Details
+                            </span>
+                            <span className="sm:hidden">View</span>
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 mx-4">
+                          <DialogHeader>
+                            <DialogTitle>
+                              Verification Request: {request.employeeName}
+                            </DialogTitle>
+                          </DialogHeader>
+                          <VerificationDetailsView
+                            request={request}
+                            onApprove={() => handleApproveVerification(request)}
+                            onReject={() => handleRejectVerification(request)}
+                            onViewDocument={handleViewDocument}
+                            onDownloadDocument={handleDownloadDocument}
+                          />
+                        </DialogContent>
+                      </Dialog>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-green-700 border-green-200 hover:bg-green-50 flex-1 sm:flex-none"
+                        onClick={() => handleApproveVerification(request)}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-1" />
+                        Approve
+                      </Button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-red-700 border-red-200 hover:bg-red-50 flex-1 sm:flex-none"
+                          >
+                            <XCircle className="h-4 w-4 mr-1" />
+                            Reject
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                          <DialogHeader>
+                            <DialogTitle>
+                              Reject Verification Request
+                            </DialogTitle>
+                          </DialogHeader>
+                          <RejectVerificationForm
+                            request={request}
+                            onReject={() => handleRejectVerification(request)}
+                          />
+                        </DialogContent>
+                      </Dialog>
+                    </div>
                   </div>
                 </div>
               ))
@@ -510,7 +526,7 @@ function VerificationDetailsView({
             <h3 className="text-lg font-semibold border-b pb-2">
               Basic Information
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label className="text-sm font-medium text-muted-foreground">
                   First Name
@@ -592,7 +608,7 @@ function VerificationDetailsView({
             <h3 className="text-lg font-semibold border-b pb-2">
               Job Information
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label className="text-sm font-medium text-muted-foreground">
                   Position
@@ -649,7 +665,7 @@ function VerificationDetailsView({
             <h3 className="text-lg font-semibold border-b pb-2">
               Contact Information
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label className="text-sm font-medium text-muted-foreground">
                   Email
@@ -706,7 +722,7 @@ function VerificationDetailsView({
             <h3 className="text-lg font-semibold border-b pb-2">
               Document Information
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label className="text-sm font-medium text-muted-foreground">
                   Passport Number
@@ -787,7 +803,7 @@ function VerificationDetailsView({
             <h3 className="text-lg font-semibold border-b pb-2">
               Banking Information
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label className="text-sm font-medium text-muted-foreground">
                   Bank
@@ -828,7 +844,7 @@ function VerificationDetailsView({
             <h3 className="text-lg font-semibold border-b pb-2">
               Emergency Contact
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label className="text-sm font-medium text-muted-foreground">
                   Emergency Contact Name
