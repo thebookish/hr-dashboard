@@ -468,7 +468,7 @@ function EmployeeEditForm({
   const getDocumentUrl = (filePath?: string): string | undefined => {
     if (!filePath) return undefined;
     const BASE_URL =
-      "https://hrms-hgdtc3e2chcbb8h0.southeastasia-01.azurewebsites.net";
+      "https://hrm-backend-gjaahxhpfudnf0f2.southeastasia-01.azurewebsites.net";
     // If the filePath already contains the full URL, return as is
     if (filePath.startsWith("http")) return filePath;
     // Otherwise, prepend the base URL
