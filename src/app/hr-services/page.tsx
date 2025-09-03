@@ -494,7 +494,7 @@ export default function HRServicesPage() {
   // Employee Search Functions
   const handleEmployeeSearch = async () => {
     if (!searchInput.trim()) {
-      setShowSearchResults(false);
+      setShowSearchModal(false);
       setSearchResults([]);
       return;
     }
@@ -507,7 +507,7 @@ export default function HRServicesPage() {
       if (isEmail) {
         // Search by email - direct selection
         setSelectedEmployee(searchInput.trim());
-        setShowSearchResults(false);
+        setShowSearchModal(false);
         setSearchResults([]);
         await loadEmployeeData(searchInput.trim());
         toast({
