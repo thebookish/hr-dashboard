@@ -549,7 +549,7 @@ export default function HRServicesPage() {
           error.message || "Failed to search for employees. Please try again.",
         variant: "destructive",
       });
-      setShowSearchResults(false);
+      setShowSearchModal(false);
       setSearchResults([]);
     } finally {
       setIsLoading(false);
